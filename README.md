@@ -23,7 +23,7 @@ Bem-vindo ao **Stratus Relayer**, uma aplicação desenvolvida em **Node.js** qu
 8. [🚀 Executar a Aplicação](#-executar-a-aplicação)
 9. [🔄 Configurar a Aplicação para Iniciar Automaticamente](#-configurar-a-aplicação-para-iniciar-automaticamente)
    - [Usando o PM2](#usando-o-pm2)
-10. [🛡️ Configurar Firewall](#-configurar-firewall)
+10. [🛡️ Configurar Firewall](#%EF%B8%8F-configurar-firewall)
 11. [✅ Testar a Implantação](#-testar-a-implantação)
 12. [📝 Manutenção e Dicas Adicionais](#-manutenção-e-dicas-adicionais)
 13. [📚 Recursos Adicionais](#-recursos-adicionais)
