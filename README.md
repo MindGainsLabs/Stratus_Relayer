@@ -21,7 +21,7 @@ Welcome to **Stratus Relayer**, an application developed in **Node.js** that all
    - [Configure Discord Bot](#configure-discord-bot)
    - [Configure Telegram Bot](#configure-telegram-bot)
 8. [🚀 Run the Application](#-run-the-application)
-9. [🔄 Configure the Application to Start Automatically](#-configure-the-application-to-start-automatically)
+9. [🔄 Configure the Application for Automatic Startup](#-configure-the-application-to-start-automatically)
    - [Using PM2](#using-pm2)
 10. [🛡️ Configure Firewall](#%EF%B8%8F-configure-firewall)
 11. [✅ Test Deployment](#-test-deployment)
