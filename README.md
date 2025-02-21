@@ -1,175 +1,154 @@
 # 🚀 Stratus Relayer Application
 
-Bem-vindo ao **Stratus Relayer**, uma aplicação desenvolvida em **Node.js** que permite extrair e encaminhar mensagens do Discord para o Telegram de forma automática. Este guia fornecerá todas as etapas necessárias para que outra pessoa consiga implantar e executar esta aplicação em uma **VPS Ubuntu**.
+Welcome to **Stratus Relayer**, an application developed in **Node.js** that allows you to extract and forward messages from Discord to Telegram automatically. This guide provides all the necessary steps to deploy and run this application on an **Ubuntu VPS**.
 
 ---
 
-## 📋 Sumário
+## 📋 Table of Contents
 
-1. [📌 Requisitos](#-requisitos)
-2. [🔧 Configuração da VPS Ubuntu](#-configuração-da-vps-ubuntu)
-3. [💻 Instalação das Ferramentas Necessárias](#-instalação-das-ferramentas-necessárias)
-   - [1. Instalar Node.js](#1-instalar-nodejs)
-   - [2. Instalar MongoDB](#2-instalar-mongodb)
-   - [3. Instalar Git](#3-instalar-git)
-4. [📥 Clonar o Repositório](#-clonar-o-repositório)
-5. [⚙️ Configurar Variáveis de Ambiente](#%EF%B8%8F-configurar-variáveis-de-ambiente)
-   - [Criar e Configurar o Arquivo `.env`](#criar-e-configurar-o-arquivo-env)
-6. [📦 Instalar Dependências](#-instalar-dependências)
-   - [Instalar Dependências Node.js](#instalar-dependências-nodejs)
-7. [🔐 Configuração dos Bots Discord e Telegram](#-configuração-dos-bots-discord-e-telegram)
-   - [A. Configurar Bot no Discord](#a-configurar-bot-no-discord)
-   - [B. Configurar Bot no Telegram](#b-configurar-bot-no-telegram)
-8. [🚀 Executar a Aplicação](#-executar-a-aplicação)
-9. [🔄 Configurar a Aplicação para Iniciar Automaticamente](#-configurar-a-aplicação-para-iniciar-automaticamente)
-   - [Usando o PM2](#usando-o-pm2)
-10. [🛡️ Configurar Firewall](#%EF%B8%8F-configurar-firewall)
-11. [✅ Testar a Implantação](#-testar-a-implantação)
-12. [📝 Manutenção e Dicas Adicionais](#-manutenção-e-dicas-adicionais)
-13. [📚 Recursos Adicionais](#-recursos-adicionais)
-14. [🔗 Links Úteis](#-links-úteis)
-15. [📜 Descrição](#-descrição)
-16. [🛠️ Tecnologias Utilizadas](#%EF%B8%8F-tecnologias-utilizadas)
-17. [📋 Funcionalidades](#-funcionalidades)
-18. [📜 Responsabilidades](#-responsabilidades)
-19. [📂 Estrutura do Projeto](#-estrutura-do-projeto)
-20. [🔗 Integrações](#-integrações)
-21. [📦 Dependências](#-dependências)
-22. [⚙️ Configuração](#%EF%B8%8F-configuração)
-23. [🚀 Uso](#-uso)
-24. [📜 Licença](#-licença)
-
----
-
-## 📌 Requisitos
-
-Antes de iniciar, certifique-se de que você possui:
-
-- **Acesso a uma VPS Ubuntu** com privilégios administrativos.
-- **Conta no Discord** e **Bot Token**.
-- **Conta no Telegram** e **Bot Token**.
-- **Conhecimento básico** em linha de comando e configuração de serviços no Linux.
+1. [📌 Requirements](#-requirements)
+2. [🔧 Ubuntu VPS Setup](#-ubuntu-vps-setup)
+3. [💻 Installing Necessary Tools](#-installing-necessary-tools)
+   - [Install Node.js](#install-nodejs)
+   - [Install MongoDB](#install-mongodb)
+   - [Install Git](#install-git)
+4. [📥 Clone the Repository](#-clone-the-repository)
+5. [⚙️ Configure Environment Variables](#-configure-environment-variables)
+   - [Create and Configure the `.env` File](#create-and-configure-the-env-file)
+6. [📦 Install Dependencies](#-install-dependencies)
+   - [Install Node.js Dependencies](#install-nodejs-dependencies)
+7. [🔐 Configure Discord and Telegram Bots](#-configure-discord-and-telegram-bots)
+   - [Configure Discord Bot](#configure-discord-bot)
+   - [Configure Telegram Bot](#configure-telegram-bot)
+8. [🚀 Run the Application](#-run-the-application)
+9. [🔄 Configure the Application to Start Automatically](#-configure-the-application-to-start-automatically)
+   - [Using PM2](#using-pm2)
+10. [🛡️ Configure Firewall](#-configure-firewall)
+11. [✅ Test Deployment](#-test-deployment)
+12. [📝 Maintenance and Additional Tips](#-maintenance-and-additional-tips)
+13. [📚 Additional Resources](#-additional-resources)
+14. [🔗 Useful Links](#-useful-links)
+15. [📜 Description](#-description)
+16. [🛠️ Technologies Used](#-technologies-used)
+17. [📋 Features](#-features)
+18. [📜 Responsibilities](#-responsibilities)
+19. [📂 Project Structure](#-project-structure)
+20. [🔗 Integrations](#-integrations)
+21. [📦 Dependencies](#-dependencies)
+22. [⚙️ Configuration](#-configuration)
+23. [🚀 Usage](#-usage)
+24. [📜 License](#-license)
 
 ---
 
-## 🔧 Configuração da VPS Ubuntu
+## 📌 Requirements
 
-### 1. Acesso à VPS
+Before starting, ensure you have:
 
-- **SSH (Secure Shell):**
-  - Use o **SSH** para acessar sua VPS.
-  - Abra o terminal no seu computador local e insira o comando:
-    ```bash
-    ssh usuario@ip_da_vps
-    ```
-  - Substitua `usuario` pelo seu nome de usuário na VPS e `ip_da_vps` pelo endereço IP da VPS.
-
-### 2. Atualização do Sistema
-
-- **Atualize o Ubuntu:**
-  - Execute os seguintes comandos para atualizar os pacotes do sistema:
-    ```bash
-    sudo apt update
-    sudo apt upgrade -y
-    ```
+- **Access to an Ubuntu VPS** with administrative privileges.
+- **A Discord account** with a bot token.
+- **A Telegram account** with a bot token.
+- **Basic knowledge** of command-line usage and Linux service configuration.
 
 ---
 
-## 💻 Instalação das Ferramentas Necessárias
+## 🔧 Ubuntu VPS Setup
 
-### 1. Instalar Node.js
+### 1. Access the VPS
 
-1. **Adicionar o Repositório NodeSource:**
+- **Connect via SSH:**
+  ```bash
+  ssh user@vps_ip
+  ```
+  Replace `user` with your VPS username and `vps_ip` with the server’s IP address.
+
+### 2. Update the System
+
+- **Update Ubuntu packages:**
+  ```bash
+  sudo apt update && sudo apt upgrade -y
+  ```
+
+---
+
+## 💻 Installing Necessary Tools
+
+### Install Node.js
+
+1. **Add the NodeSource Repository:**
    ```bash
    curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
    ```
-
-2. **Instalar Node.js:**
+2. **Install Node.js:**
    ```bash
    sudo apt install -y nodejs
    ```
-
-3. **Verificar Instalação:**
+3. **Verify Installation:**
    ```bash
-   node -v
-   npm -v
+   node -v && npm -v
    ```
 
-### 2. Instalar MongoDB
+### Install MongoDB
 
-1. **Importar a Chave Pública do MongoDB:**
+1. **Import the MongoDB Public Key:**
    ```bash
    wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
    ```
-
-2. **Criar o Arquivo de Lista do MongoDB:**
+2. **Create the MongoDB Repository List File:**
    ```bash
    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
    ```
-
-3. **Atualizar os Pacotes do Sistema:**
+3. **Update Package List and Install MongoDB:**
    ```bash
-   sudo apt update
+   sudo apt update && sudo apt install -y mongodb-org
    ```
-
-4. **Instalar o MongoDB:**
+4. **Start and Enable MongoDB:**
    ```bash
-   sudo apt install -y mongodb-org
+   sudo systemctl start mongod && sudo systemctl enable mongod
    ```
-
-5. **Iniciar o MongoDB:**
-   ```bash
-   sudo systemctl start mongod
-   sudo systemctl enable mongod
-   ```
-
-6. **Verificar Instalação:**
+5. **Verify Installation:**
    ```bash
    mongo --version
    ```
 
-### 3. Instalar Git
+### Install Git
 
-1. **Instalar Git:**
+1. **Install Git:**
    ```bash
    sudo apt install -y git
    ```
-
-2. **Verificar Instalação:**
+2. **Verify Installation:**
    ```bash
    git --version
    ```
 
 ---
 
-## 📥 Clonar o Repositório
+## 📥 Clone the Repository
 
-1. **Navegar até o Diretório Desejado:**
+1. **Navigate to the Desired Directory:**
    ```bash
-   cd /caminho/para/diretorio
+   cd /path/to/directory
    ```
-
-2. **Clonar o Repositório:**
+2. **Clone the Repository:**
    ```bash
-   git clone https://github.com/usuario/repo-Stratus_Relayer.git
+   git clone https://github.com/user/repo-Stratus_Relayer.git
    cd repo-Stratus_Relayer/Relay_Stratus
    ```
 
 ---
 
-## ⚙️ Configurar Variáveis de Ambiente
+## ⚙️ Configure Environment Variables
 
-### Criar e Configurar o Arquivo `.env`
+### Create and Configure the `.env` File
 
-1. **Criar o Arquivo `.env`:**
+1. **Create the `.env` File:**
    ```bash
    nano .env
    ```
-
-2. **Adicionar as Variáveis ao `.env`:**
+2. **Add the Environment Variables:**
    ```env
    API_URL=
-
    TOKEN_DISCORD=
    CHANNEL_ID_1=
    CHANNEL_ID_2=
@@ -178,228 +157,186 @@ Antes de iniciar, certifique-se de que você possui:
    TELEGRAM_CHAT_ID=
    PORT=
    MONGO_URI=
-
    RUGCHECK_API_URL=
    RUGCHECK_TOKEN_ID=
-
    MONGO_URI_TEST=
    ```
 
-   **Descrição das Variáveis:**
-
-   - **API_URL:** URL da API.
-   - **TOKEN_DISCORD:** Token do seu bot Discord.
-   - **CHANNEL_ID_1:** ID do primeiro canal Discord de onde as mensagens serão extraídas.
-   - **CHANNEL_ID_2:** ID do segundo canal Discord de onde as mensagens serão extraídas.
-   - **CHANNEL_ID_3:** ID do terceiro canal Discord de onde as mensagens serão extraídas.
-   - **TELEGRAM_TOKEN:** Token do seu bot Telegram.
-   - **TELEGRAM_CHAT_ID:** ID do chat Telegram para onde as mensagens serão enviadas.
-   - **PORT:** Porta onde o servidor Node.js irá rodar.
-   - **MONGO_URI:** URI de conexão com o MongoDB.
-   - **RUGCHECK_API_URL:** URL da API do Rugcheck.
-   - **RUGCHECK_TOKEN_ID:** ID do token do Rugcheck.
-   - **MONGO_URI_TEST:** URI de conexão com o MongoDB para testes.
-
-   **Exemplo Completo de `.env`:**
-   ```env
-   API_URL=https://seu-servidor.example.com:80
-
-   TOKEN_DISCORD=seu_token_discord
-   CHANNEL_ID_1=123456789012345678
-   CHANNEL_ID_2=234567890123456789
-   CHANNEL_ID_3=345678901234567890
-   TELEGRAM_TOKEN=seu_telegram_bot_token
-   TELEGRAM_CHAT_ID=987654321
-   PORT=80
-   MONGO_URI=mongodb://localhost:27017/stratus-relayer
-
-   RUGCHECK_API_URL=https://api.rugcheck.xyz/v1
-   RUGCHECK_TOKEN_ID=sua_chave_publica
-
-   MONGO_URI_TEST=mongodb://localhost:27017/test
-   ```
-
-   **Notas:**
-
-   - **Segurança:** Garanta que este arquivo `.env` **não seja compartilhado** ou versionado no controle de versão público, pois contém credenciais sensíveis.
-   - **Formatação:** Certifique-se de que não haja espaços adicionais e que os valores estejam corretos.
+   **Security Notes:**
+   - Ensure the `.env` file is **not shared** or committed to version control.
+   - Double-check the formatting and correct values before running the application.
 
 ---
 
-## 📦 Instalar Dependências
+## 📦 Install Dependencies
 
-### Instalar Dependências Node.js
+### Install Node.js Dependencies
 
-1. **Navegar até o Diretório Node.js:**
+1. **Navigate to the Project Directory:**
    ```bash
-   cd /caminho/para/repo-Stratus_Relayer/Relay_Stratus
+   cd /path/to/repo-Stratus_Relayer/Relay_Stratus
    ```
-
-2. **Instalar Dependências:**
+2. **Install Dependencies:**
    ```bash
    npm install
    ```
-   
-   **Nota:**
-   - Certifique-se de que o arquivo `package.json` está corretamente configurado com todas as dependências necessárias.
-
-3. **Verificar Dependências Instaladas:**
-   - Após a instalação, uma pasta `node_modules` deve existir dentro de Relay_Stratus.
+3. **Verify Installation:**
+   - Ensure the `node_modules` folder exists within `Relay_Stratus`.
 
 ---
 
-## 🔐 Configuração dos Bots Discord e Telegram
+## 🔐 Discord and Telegram Bot Setup
 
-### A. Configurar Bot no Discord
+### A. Configure Bot on Discord
 
-1. **Criar um Bot no Discord:**
-   - Acesse o [Discord Developer Portal](https://discord.com/developers/applications).
-   - Clique em **"New Application"** e dê um nome para o seu aplicativo.
+1. **Create a Bot on Discord:**
+   - Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+   - Click **"New Application"** and name your application.
    
-2. **Obter o Token do Bot:**
-   - No menu lateral, vá para **"Bot"**.
-   - Clique em **"Add Bot"** e confirme.
-   - Em **"TOKEN"**, clique em **"Copy"** para obter o Token do Bot. **Guarde-o com segurança**.
+2. **Obtain the Bot Token:**
+   - In the side menu, go to **"Bot"**.
+   - Click **"Add Bot"** and confirm.
+   - Under **"TOKEN"**, click **"Copy"** to obtain the Bot Token. **Keep it secure**.
 
-3. **Convidar o Bot para seu Servidor:**
-   - Ainda no Developer Portal, vá para **"OAuth2"** > **"URL Generator"**.
-   - Em **"Scopes"**, selecione **"bot"**.
-   - Em **"Bot Permissions"**, selecione as permissões necessárias (por exemplo, **"Read Messages"**, **"Send Messages"**, etc.).
-   - Copie a URL gerada e abra-a no navegador para convidar o bot ao seu servidor.
+3. **Invite the Bot to Your Server:**
+   - Still in the Developer Portal, go to **"OAuth2"** > **"URL Generator"**.
+   - In **"Scopes"**, select **"bot"**.
+   - In **"Bot Permissions"**, select the necessary permissions (e.g., **"Read Messages"**, **"Send Messages"**, etc.).
+   - Copy the generated URL and open it in a browser to invite the bot to your server.
 
-4. **Obter o ID do Canal Discord:**
-   - No Discord, ative o **"Modo de Desenvolvedor"** em **Configurações** > **Avançado** > **Modo de Desenvolvedor**.
-   - Clique com o botão direito no canal desejado e selecione **"Copiar ID"** para obter o `CHANNEL_ID`.
+4. **Obtain the Discord Channel ID:**
+   - In Discord, enable **"Developer Mode"** in **Settings** > **Advanced** > **Developer Mode**.
+   - Right-click the desired channel and select **"Copy ID"** to obtain the `CHANNEL_ID`.
 
-### B. Configurar Bot no Telegram
+### B. Configure Bot on Telegram
 
-1. **Criar um Bot no Telegram:**
-   - Abra o Telegram e inicie uma conversa com o [BotFather](https://t.me/BotFather).
-   - Envie o comando `/newbot` e siga as instruções para criar um novo bot.
-   - Após a criação, o BotFather fornecerá um **Token de API** para o bot. **Guarde-o com segurança**.
+1. **Create a Bot on Telegram:**
+   - Open Telegram and start a chat with [BotFather](https://t.me/BotFather).
+   - Send the command `/newbot` and follow the instructions to create a new bot.
+   - After creation, BotFather will provide an **API Token** for the bot. **Keep it secure**.
 
-2. **Obter o Chat ID do Telegram:**
-   - Inicie uma conversa com o seu bot Telegram.
-   - Envie uma mensagem qualquer.
-   - Para obter o `TELEGRAM_CHAT_ID`, você pode usar a API do Telegram ou ferramentas como [Get IDs](https://getids.xyz/):
+2. **Obtain the Telegram Chat ID:**
+   - Start a conversation with your Telegram bot.
+   - Send any message.
+   - To obtain the `TELEGRAM_CHAT_ID`, use the Telegram API or tools like [Get IDs](https://getids.xyz/):
 
-     - Abra a URL:
+     - Open the URL:
        ```
        https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates
        ```
-       Substitua `<YOUR_BOT_TOKEN>` pelo token do seu bot.
-     - Encontre o `chat.id` na resposta JSON.
+       Replace `<YOUR_BOT_TOKEN>` with your bot's token.
+     - Find the `chat.id` in the JSON response.
 
 ---
 
-## 🚀 Executar a Aplicação
+## 🚀 Run the Application
 
-1. **Navegar até o Diretório Node.js:**
+1. **Navigate to the Node.js Directory:**
    ```bash
-   cd /caminho/para/repo-Stratus_Relayer/Relay_Stratus
+   cd /path/to/repo-Stratus_Relayer/Relay_Stratus
    ```
 
-2. **Iniciar a Aplicação:**
+2. **Start the Application:**
    ```bash
    npm run start
    ```
    
-   - **Alternativamente**, execute diretamente com Node.js:
+   - **Alternatively**, run directly with Node.js:
      ```bash
      node index.js
      ```
 
-   - **Saída Esperada:**
+   - **Expected Output:**
      ```
-     Conectado ao MongoDB
-     Cron job agendado com a seguinte expressão: "*/2 * * * * *"
-     Servidor rodando em http://localhost:80
+     Connected to MongoDB
+     Cron job scheduled with the following expression: "*/2 * * * * *"
+     Server running at http://localhost:80
      ```
 
-3. **Acessar a Interface Web:**
-   - Abra um navegador e vá para `http://<IP_DA_SUA_VPS>`.
-   - A página **"Extrator de Mensagens Discord"** deve ser exibida.
+3. **Access the Web Interface:**
+   - Open a browser and go to `http://<YOUR_VPS_IP>`.
+   - The **"Discord Message Extractor"** page should be displayed.
 
 ---
 
-## 🔄 Configurar a Aplicação para Iniciar Automaticamente
+## 🔄 Configure the Application for Automatic Startup
 
-### Usando o PM2
+### Using PM2
 
-O **PM2** permite executar aplicações Node.js como serviços no Linux, garantindo que a aplicação inicie automaticamente com o sistema.
+**PM2** allows Node.js applications to run as services on Linux, ensuring that the application starts automatically with the system.
 
-1. **Instalar o PM2:**
+1. **Install PM2:**
    ```bash
    sudo npm install -g pm2
    ```
 
-2. **Iniciar a Aplicação com o PM2:**
+2. **Start the Application with PM2:**
    ```bash
    pm2 start index.js --name Stratus_Relayer
    ```
 
-3. **Configurar o PM2 para Iniciar na Inicialização do Sistema:**
+3. **Set PM2 to Start on System Boot:**
    ```bash
    pm2 startup systemd
    ```
 
-4. **Salvar o Estado Atual do PM2:**
+4. **Save the Current PM2 State:**
    ```bash
    pm2 save
    ```
 
-5. **Verificar o Status do PM2:**
+5. **Check PM2 Status:**
    ```bash
    pm2 status
    ```
 
 ---
 
-## 🛡️ Configurar Firewall
+## 🛡️ Configure Firewall
 
-Para que a aplicação seja acessível externamente, é necessário garantir que as portas utilizadas estejam abertas.
+To ensure the application is accessible externally, make sure the necessary ports are open.
 
-### Passo a Passo
+### Step-by-Step
 
-1. **Abrir Porta no Firewall do Ubuntu:**
+1. **Open the Port on Ubuntu Firewall:**
 
-   - **Usar UFW (Uncomplicated Firewall):**
+   - **Use UFW (Uncomplicated Firewall):**
      ```bash
      sudo ufw allow 80/tcp
      sudo ufw enable
      sudo ufw status
      ```
 
-2. **Verificar a Conexão:**
+2. **Check Connection:**
 
-   - Acesse `http://<IP_DA_SUA_VPS>:80` no navegador para verificar se o servidor está rodando.
-   - **Substitua** `<IP_DA_SUA_VPS>` pelo endereço IP da sua VPS.
-
----
-
-## ✅ Testar a Implantação
-
-Após configurar e iniciar a aplicação, você pode testar a implantação verificando se as mensagens estão sendo extraídas corretamente dos canais do Discord e se as notificações estão sendo enviadas para o Telegram. Verifique os logs da aplicação para garantir que não há erros e que todas as funcionalidades estão operando conforme esperado.
+   - Access `http://<YOUR_VPS_IP>:80` in a browser to verify if the server is running.
+   - **Replace** `<YOUR_VPS_IP>` with your VPS's IP address.
 
 ---
 
-## 📝 Manutenção e Dicas Adicionais
+## ✅ Test Deployment
 
-- **Atualizações de Dependências**: Mantenha as dependências do projeto atualizadas para garantir a segurança e a estabilidade da aplicação.
-- **Monitoramento**: Implemente monitoramento e alertas para acompanhar a saúde da aplicação e detectar problemas rapidamente.
-- **Backups**: Realize backups regulares do banco de dados para evitar perda de dados.
+After configuring and starting the application, test the deployment by verifying if messages are being extracted correctly from Discord channels and if notifications are being sent to Telegram. Check the application logs to ensure there are no errors and that all functionalities are operating as expected.
 
 ---
 
-## 📚 Recursos Adicionais
+## 📝 Maintenance and Additional Tips
 
-- **Documentação do Discord API**: [Discord Developer Portal](https://discord.com/developers/docs/intro)
-- **Documentação do Rugcheck API**: [Rugcheck API Documentation](https://api.rugcheck.xyz/docs)
-- **Documentação do Telegram API**: [Telegram Bot API](https://core.telegram.org/bots/api)
+- **Dependency Updates**: Keep project dependencies updated to ensure security and stability.
+- **Monitoring**: Implement monitoring and alerts to track application health and detect issues quickly.
+- **Backups**: Regularly back up the database to prevent data loss.
 
 ---
 
-## 🔗 Links Úteis
+## 📚 Additional Resources
+
+- **Discord API Documentation**: [Discord Developer Portal](https://discord.com/developers/docs/intro)
+- **Rugcheck API Documentation**: [Rugcheck API Documentation](https://api.rugcheck.xyz/docs)
+- **Telegram API Documentation**: [Telegram Bot API](https://core.telegram.org/bots/api)
+
+---
+
+## 🔗 Useful Links
 
 - **Node.js**: [Node.js Official Website](https://nodejs.org/)
 - **Express**: [Express Official Website](https://expressjs.com/)
@@ -411,44 +348,44 @@ Após configurar e iniciar a aplicação, você pode testar a implantação veri
 
 ---
 
-## 📜 Descrição
+## 📜 Description
 
-O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensagens de canais do Discord e realizar análises e verificações utilizando diversas APIs e serviços. A aplicação é capaz de autenticar, buscar relatórios e enviar notificações para o Telegram.
-
----
-
-## 🛠️ Tecnologias Utilizadas
-
-- **Node.js**: Plataforma de desenvolvimento JavaScript.
-- **Express**: Framework para construção de APIs.
-- **Axios**: Cliente HTTP para realizar requisições.
-- **Mongoose**: Biblioteca para modelagem de dados MongoDB.
-- **dotenv**: Gerenciamento de variáveis de ambiente.
-- **tweetnacl**: Biblioteca para criptografia e assinatura de mensagens.
-- **tweetnacl-util**: Utilitários para codificação e decodificação de dados na biblioteca `tweetnacl`.
+The Stratus Relayer Application is developed to extract messages from Discord channels and perform analysis and verification using various APIs and services. The application can authenticate, fetch reports, and send notifications to Telegram.
 
 ---
 
-## 📋 Funcionalidades
+## 🛠️ Technologies Used
 
-- **Extração de Mensagens**: Extrai mensagens de canais do Discord em um período de tempo especificado.
-- **Autenticação**: Autentica na API do Rugcheck para obter relatórios de tokens.
-- **Análise de Tokens**: Busca relatórios de tokens utilizando a API do Rugcheck.
-- **Notificações**: Envia notificações para o Telegram com as mensagens extraídas e analisadas.
-- **Armazenamento**: Armazena mensagens extraídas no MongoDB.
-
----
-
-## 📜 Responsabilidades
-
-- **messageService.js**: Responsável por extrair mensagens dos canais do Discord e realizar análises.
-- **rugcheckService.js**: Responsável por autenticar e buscar relatórios de tokens na API do Rugcheck.
-- **telegramService.js**: Responsável por enviar notificações para o Telegram.
-- **server.js**: Inicializa o servidor e configura as rotas da API.
+- **Node.js**: JavaScript development platform.
+- **Express**: API development framework.
+- **Axios**: HTTP client for making requests.
+- **Mongoose**: MongoDB data modeling library.
+- **dotenv**: Environment variable management.
+- **tweetnacl**: Library for cryptography and message signing.
+- **tweetnacl-util**: Utilities for encoding and decoding data in the `tweetnacl` library.
 
 ---
 
-## 📂 Estrutura do Projeto
+## 📋 Features
+
+- **Message Extraction**: Extracts messages from Discord channels within a specified time frame.
+- **Authentication**: Authenticates with the Rugcheck API to obtain token reports.
+- **Token Analysis**: Fetches token reports using the Rugcheck API.
+- **Notifications**: Sends notifications to Telegram with extracted and analyzed messages.
+- **Storage**: Stores extracted messages in MongoDB.
+
+---
+
+## 📜 Responsibilities
+
+- **messageService.js**: Responsible for extracting messages from Discord channels and performing analyses.
+- **rugcheckService.js**: Responsible for authenticating and retrieving token reports from the Rugcheck API.
+- **telegramService.js**: Responsible for sending notifications to Telegram.
+- **server.js**: Initializes the server and configures API routes.
+
+---
+
+## 📂 Project Structure
 
 ```
 /Relay_Stratus
@@ -476,13 +413,13 @@ O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensa
 └── README.md
 ```
 
-## 🔗 Integrações
+## 🔗 Integrations
 
-- **Discord API**: Utilizada para extrair mensagens dos canais do Discord.
-- **Rugcheck API**: Utilizada para autenticar e buscar relatórios de tokens.
-- **Telegram API**: Utilizada para enviar notificações com as mensagens extraídas e analisadas.
+- **Discord API**: Used to extract messages from Discord channels.
+- **Rugcheck API**: Used to authenticate and retrieve token reports.
+- **Telegram API**: Used to send notifications with extracted and analyzed messages.
 
-## 📦 Dependências
+## 📦 Dependencies
 
 - **axios**: ^0.21.1
 - **dotenv**: ^8.2.0
@@ -491,42 +428,44 @@ O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensa
 - **tweetnacl**: ^1.0.3
 - **tweetnacl-util**: ^0.15.1
 
-## ⚙️ Configuração
+## ⚙️ Configuration
 
-1. Clone o repositório:
+1. Clone the repository:
     ```bash
-    git clone https://github.com/seu-usuario/scrapping-tweets-smarteye.git
+    git clone https://github.com/your-username/scrapping-tweets-smarteye.git
     cd scrapping-tweets-smarteye/Relay_Stratus
     ```
 
-2. Instale as dependências:
+2. Install dependencies:
     ```bash
     npm install
     ```
 
-3. Configure as variáveis de ambiente no arquivo env`.`:
+3. Configure environment variables in the `.env` file:
     ```env
-    TOKEN_DISCORD=SeuTokenDiscordAqui
+    API_URL=https://server.example.com
+    TOKEN_DISCORD=YourDiscordTokenHere
     RUGCHECK_API_URL=https://api.rugcheck.xyz
-    RUGCHECK_TOKEN_ID=SuaChavePublicaAqui
-    RUGCHECK_SECRET_KEY=SuaChavePrivadaAqui
-    TELEGRAM_BOT_TOKEN=SeuTokenTelegramBotAqui
-    TELEGRAM_CHAT_ID=SeuChatIdTelegramAqui
-    MONGODB_URI=SuaURIConexaoMongoDBAqui
-    CHANNEL_ID_1=IDDoCanal1
-    CHANNEL_ID_2=IDDoCanal2
-    CHANNEL_ID_3=IDDoCanal3
+    RUGCHECK_TOKEN_ID=YourPublicKeyHere
+    RUGCHECK_SECRET_KEY=YourPrivateKeyHere
+    TELEGRAM_BOT_TOKEN=YourTelegramBotTokenHere
+    TELEGRAM_CHAT_ID=YourTelegramChatIdHere
+    PORT=80
+    MONGODB_URI=YourMongoDBConnectionURIHere
+    CHANNEL_ID_1=ChannelID1
+    CHANNEL_ID_2=ChannelID2
+    CHANNEL_ID_3=ChannelID3
     ```
 
-4. Inicie a aplicação:
+4. Start the application:
     ```bash
     npm start
     ```
 
-## 🚀 Uso
+## 🚀 Usage
 
-A aplicação irá extrair mensagens dos canais do Discord configurados, analisar os tokens mencionados nas mensagens utilizando a API do Rugcheck, e enviar notificações para o Telegram com os resultados das análises.
+The application will extract messages from configured Discord channels, analyze tokens mentioned in the messages using the Rugcheck API, and send notifications to Telegram with the analysis results.
 
-## 📜 Licença
+## 📜 License
 
-Este projeto está licenciado sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+This project is licensed under the MIT license. See the LICENSE file for more details.
