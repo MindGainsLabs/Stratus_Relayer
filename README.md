@@ -17,7 +17,7 @@ Welcome to **Stratus Relayer**, an application developed in **Node.js** that all
    - [Create and Configure the `.env` File](#create-and-configure-the-env-file)
 6. [📦 Install Dependencies](#-install-dependencies)
    - [Install Node.js Dependencies](#install-nodejs-dependencies)
-7. [🔐 Configure Discord and Telegram Bots](#-configure-discord-and-telegram-bots)
+7. [🔐 Discord and Telegram Bot Setup](#-discord-and-telegram-bot-setup)
    - [Configure Discord Bot](#configure-discord-bot)
    - [Configure Telegram Bot](#configure-telegram-bot)
 8. [🚀 Run the Application](#-run-the-application)
