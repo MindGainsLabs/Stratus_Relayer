@@ -13,7 +13,7 @@ Bem-vindo ao **Stratus Relayer**, uma aplicação desenvolvida em **Node.js** qu
    - [2. Instalar MongoDB](#2-instalar-mongodb)
    - [3. Instalar Git](#3-instalar-git)
 4. [📥 Clonar o Repositório](#-clonar-o-repositório)
-5. [⚙️ Configurar Variáveis de Ambiente](#-configurar-variáveis-de-ambiente)
+5. [⚙️ Configurar Variáveis de Ambiente](#%EF%B8%8F-configurar-variáveis-de-ambiente)
    - [Criar e Configurar o Arquivo `.env`](#criar-e-configurar-o-arquivo-env)
 6. [📦 Instalar Dependências](#-instalar-dependências)
    - [Instalar Dependências Node.js](#instalar-dependências-nodejs)
@@ -35,7 +35,7 @@ Bem-vindo ao **Stratus Relayer**, uma aplicação desenvolvida em **Node.js** qu
 19. [📂 Estrutura do Projeto](#-estrutura-do-projeto)
 20. [🔗 Integrações](#-integrações)
 21. [📦 Dependências](#-dependências)
-22. [⚙️ Configuração](#-configuração)
+22. [⚙️ Configuração](#%EF%B8%8F-configuração)
 23. [🚀 Uso](#-uso)
 24. [📜 Licença](#-licença)
 
