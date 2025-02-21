@@ -1,3 +1,4 @@
+import TelegramBot from 'node-telegram-bot-api';
 import axios from 'axios';
 import { configDotenv } from 'dotenv';
 configDotenv();
@@ -20,7 +21,7 @@ const sendToTelegram = async (text) => {
             headers: { 'Content-Type': 'application/json' }
         });
 
-        const data = response.data; // ✅ Correto: Utilizar `response.data` diretamente
+        const data = response.data;
 
         if (!data.ok) {
             console.error('Erro ao enviar mensagem para o Telegram:', data.description);
@@ -39,21 +40,17 @@ const sendToTelegram = async (text) => {
     }
 };
 
-export { sendToTelegram };
-
-import TelegramBot from 'node-telegram-bot-api';
-
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '';
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '';
-
-if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
-    console.error('Telegram Token ou Chat ID não configurado.');
-    process.exit(1);
-}
-
-const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
-
 const sendToTelegramClient = async (text) => {
+    const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '';
+    const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '';
+    
+    if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
+        console.error('Telegram Token ou Chat ID não configurado.');
+        process.exit(1);
+    }
+    
+    const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
+
     try {
         await bot.sendMessage(TELEGRAM_CHAT_ID, text, { parse_mode: 'Markdown' });
     } catch (error) {
@@ -61,4 +58,4 @@ const sendToTelegramClient = async (text) => {
     }
 };
 
-export { sendToTelegramClient };
+export { sendToTelegram, sendToTelegramClient };

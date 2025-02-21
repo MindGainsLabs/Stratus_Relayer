@@ -90,7 +90,7 @@ const retrieveMessages = async (channelId, hours) => {
                                 const report = await getTokenReportSummary('', tokenIdMatch);
                                 console.log('Relatório do Rugcheck:', report);
     
-                                // Extract token details safely
+                                // Extrair detalhes do token com segurança
                                 const token_program = report.tokenProgram || "Unknown";
                                 const token_type = (report.tokenType || "").trim();
                                 const risks = report.risks || [];
@@ -100,7 +100,7 @@ const retrieveMessages = async (channelId, hours) => {
                                 responseMessage += `🔹 Token Program: ${token_program}\n`;
                                 responseMessage += `🔹 Token Type: ${token_type ? token_type : 'Unknown'}\n`;
     
-                                // Print risk factors only if they exist
+                                // Printa os fatores de risco somente se existirem
                                 if (risks.length > 0) {
                                     responseMessage += "\n⚠️ Risk Factors:\n";
                                     risks.forEach(risk => {
