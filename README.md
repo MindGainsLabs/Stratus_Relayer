@@ -168,55 +168,55 @@ Antes de iniciar, certifique-se de que você possui:
 
 2. **Adicionar as Variáveis ao `.env`:**
    ```env
-   # MongoDB Configuration
-   MONGO_URI=mongodb://localhost:27017/scrapping-tweets-smarteye
+   API_URL=
 
-   # Discord API Credentials
-   TOKEN_DISCORD=seu_token_discord
-   CHANNEL_ID=123456789012345678
+   TOKEN_DISCORD=
+   CHANNEL_ID_1=
+   CHANNEL_ID_2=
+   CHANNEL_ID_3=
+   TELEGRAM_TOKEN=
+   TELEGRAM_CHAT_ID=
+   PORT=
+   MONGO_URI=
 
-   # Telegram Bot Configuration
-   TELEGRAM_BOT_TOKEN=seu_telegram_bot_token
-   TELEGRAM_CHAT_ID=987654321
+   RUGCHECK_API_URL=
+   RUGCHECK_TOKEN_ID=
 
-   # Cron Job Configuration
-   CRON_SCHEDULE=*/2 * * * * *
-   CRON_HOURS=6
-
-   # Servidor
-   PORT=80
+   MONGO_URI_TEST=
    ```
 
    **Descrição das Variáveis:**
 
-   - **MONGO_URI:** URI de conexão com o MongoDB.
+   - **API_URL:** URL da API.
    - **TOKEN_DISCORD:** Token do seu bot Discord.
-   - **CHANNEL_ID:** ID do canal Discord de onde as mensagens serão extraídas.
-   - **TELEGRAM_BOT_TOKEN:** Token do seu bot Telegram.
+   - **CHANNEL_ID_1:** ID do primeiro canal Discord de onde as mensagens serão extraídas.
+   - **CHANNEL_ID_2:** ID do segundo canal Discord de onde as mensagens serão extraídas.
+   - **CHANNEL_ID_3:** ID do terceiro canal Discord de onde as mensagens serão extraídas.
+   - **TELEGRAM_TOKEN:** Token do seu bot Telegram.
    - **TELEGRAM_CHAT_ID:** ID do chat Telegram para onde as mensagens serão enviadas.
-   - **CRON_SCHEDULE:** Expressão cron para agendamento da coleta de mensagens (por padrão, a cada 30 segundos).
-   - **CRON_HOURS:** Número de horas para retroceder ao coletar mensagens.
-   - **PORT:** Porta onde o servidor Node.js irá rodar (80 para HTTP padrão).
+   - **PORT:** Porta onde o servidor Node.js irá rodar.
+   - **MONGO_URI:** URI de conexão com o MongoDB.
+   - **RUGCHECK_API_URL:** URL da API do Rugcheck.
+   - **RUGCHECK_TOKEN_ID:** ID do token do Rugcheck.
+   - **MONGO_URI_TEST:** URI de conexão com o MongoDB para testes.
 
    **Exemplo Completo de `.env`:**
    ```env
-   # MongoDB Configuration
-   MONGO_URI=mongodb://localhost:27017/scrapping-tweets-smarteye
+   API_URL=https://seu-servidor.example.com:80
 
-   # Discord API Credentials
-   TOKEN_DISCORD=ODk5MDM3NjA1NTkzOTYw.YGmGgQ.QjzU9OgZrD4zm0YQ0i3mfxqwHSE
-   CHANNEL_ID=123456789012345678
-
-   # Telegram Bot Configuration
-   TELEGRAM_BOT_TOKEN=123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890
+   TOKEN_DISCORD=seu_token_discord
+   CHANNEL_ID_1=123456789012345678
+   CHANNEL_ID_2=234567890123456789
+   CHANNEL_ID_3=345678901234567890
+   TELEGRAM_TOKEN=seu_telegram_bot_token
    TELEGRAM_CHAT_ID=987654321
-
-   # Cron Job Configuration
-   CRON_SCHEDULE=*/2 * * * * *
-   CRON_HOURS=6
-
-   # Servidor
    PORT=80
+   MONGO_URI=mongodb://localhost:27017/stratus-relayer
+
+   RUGCHECK_API_URL=https://api.rugcheck.xyz/v1
+   RUGCHECK_TOKEN_ID=sua_chave_publica
+
+   MONGO_URI_TEST=mongodb://localhost:27017/test
    ```
 
    **Notas:**
