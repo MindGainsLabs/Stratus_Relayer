@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Stratus Extract</title>
+    <link rel="stylesheet" href="css/styles-2.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Stratus Extract</h1>
+        <form id="messageForm">
+            <label for="channelId">Enter the ID of a specific channel or leave it as general:</label>
+            <input type="text" id="channelId" name="channelId" placeholder="Type Discord Channel ID">
+
+            <label for="hours">Last hours:</label>
+            <input type="number" id="hours" name="hours" value="3" required>
+
+            <button type="submit">Extract Messages</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <div class="moon"></div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
