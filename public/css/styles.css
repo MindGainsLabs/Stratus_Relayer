@@ -1,58 +1,72 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
 .container {
-    width: 50%;
-    margin: 50px auto;
-    background: #fff;
-    padding: 30px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-h1 {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
     text-align: center;
-    color: #333;
 }
 
 form {
+    width: 100%;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+}
+
+h1 {
+    color: #ffffff;
+    margin-bottom: 20px;
 }
 
 label {
-    margin-top: 10px;
-    margin-bottom: 5px;
-    color: #555;
+    display: block;
+    margin-bottom: 8px;
+    color: #b0b0b0;
 }
 
 input[type="text"],
 input[type="number"] {
     padding: 10px;
-    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    border: none;
     border-radius: 4px;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
 }
 
 button {
-    margin-top: 20px;
+    width: 100%;
     padding: 10px;
-    background: #5cb85c;
-    color: #fff;
     border: none;
     border-radius: 4px;
+    background-color: #6200ea;
+    color: #ffffff;
+    font-size: 16px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background: #4cae4c;
+    background-color: #3700b3;
 }
 
 #result {
     margin-top: 20px;
-    text-align: center;
+    color: #b0b0b0;
 }
 
 #result a {
@@ -68,4 +82,25 @@ button:hover {
 
 #result a:hover {
     background: #025aa5;
+}
+
+.moon {
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    width: 100px;
+    height: 100px;
+    background: url('images/moon.png') no-repeat center center;
+    background-size: cover;
+    border-radius: 50%;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(80px);
+    }
 }
