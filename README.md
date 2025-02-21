@@ -34,6 +34,10 @@ Bem-vindo ao **Stratus Relayer**, uma aplicação desenvolvida em **Node.js** qu
 18. [📜 Responsabilidades](#-responsabilidades)
 19. [📂 Estrutura do Projeto](#-estrutura-do-projeto)
 20. [🔗 Integrações](#-integrações)
+21. [📦 Dependências](#-dependências)
+22. [⚙️ Configuração](#-configuração)
+23. [🚀 Uso](#-uso)
+24. [📜 Licença](#-licença)
 
 ---
 
@@ -478,7 +482,7 @@ O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensa
 - **Rugcheck API**: Utilizada para autenticar e buscar relatórios de tokens.
 - **Telegram API**: Utilizada para enviar notificações com as mensagens extraídas e analisadas.
 
-## Dependências
+## 📦 Dependências
 
 - **axios**: ^0.21.1
 - **dotenv**: ^8.2.0
@@ -487,7 +491,7 @@ O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensa
 - **tweetnacl**: ^1.0.3
 - **tweetnacl-util**: ^0.15.1
 
-## Configuração
+## ⚙️ Configuração
 
 1. Clone o repositório:
     ```bash
@@ -519,10 +523,10 @@ O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensa
     npm start
     ```
 
-## Uso
+## 🚀 Uso
 
 A aplicação irá extrair mensagens dos canais do Discord configurados, analisar os tokens mencionados nas mensagens utilizando a API do Rugcheck, e enviar notificações para o Telegram com os resultados das análises.
 
-## Licença
+## 📜 Licença
 
 Este projeto está licenciado sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
