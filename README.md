@@ -13,7 +13,7 @@ Bem-vindo ao **Stratus Relayer**, uma aplicação desenvolvida em **Node.js** qu
    - [2. Instalar MongoDB](#2-instalar-mongodb)
    - [3. Instalar Git](#3-instalar-git)
 4. [📥 Clonar o Repositório](#-clonar-o-repositório)
-5. [⚙️ Configurar Variáveis de Ambiente](#️-configurar-variáveis-de-ambiente)
+5. [⚙️ Configurar Variáveis de Ambiente](#-configurar-variáveis-de-ambiente)
    - [Criar e Configurar o Arquivo `.env`](#criar-e-configurar-o-arquivo-env)
 6. [📦 Instalar Dependências](#-instalar-dependências)
    - [Instalar Dependências Node.js](#instalar-dependências-nodejs)
@@ -23,12 +23,12 @@ Bem-vindo ao **Stratus Relayer**, uma aplicação desenvolvida em **Node.js** qu
 8. [🚀 Executar a Aplicação](#-executar-a-aplicação)
 9. [🔄 Configurar a Aplicação para Iniciar Automaticamente](#-configurar-a-aplicação-para-iniciar-automaticamente)
    - [Usando o PM2](#usando-o-pm2)
-10. [🛡️ Configurar Firewall](#️-configurar-firewall)
+10. [🛡️ Configurar Firewall](#-configurar-firewall)
 11. [✅ Testar a Implantação](#-testar-a-implantação)
 12. [📝 Manutenção e Dicas Adicionais](#-manutenção-e-dicas-adicionais)
 13. [📚 Recursos Adicionais](#-recursos-adicionais)
 14. [🔗 Links Úteis](#-links-úteis)
-15. [Descrição](#-descrição)
+15. [📜 Descrição](#-descrição)
 16. [🛠️ Tecnologias Utilizadas](#-tecnologias-utilizadas)
 17. [📋 Funcionalidades](#-funcionalidades)
 18. [📜 Responsabilidades](#-responsabilidades)
@@ -370,11 +370,14 @@ Para que a aplicação seja acessível externamente, é necessário garantir que
 
    - Acesse `http://<IP_DA_SUA_VPS>:80` no navegador para verificar se o servidor está rodando.
    - **Substitua** `<IP_DA_SUA_VPS>` pelo endereço IP da sua VPS.
+
 ---
 
 ## ✅ Testar a Implantação
 
 Após configurar e iniciar a aplicação, você pode testar a implantação verificando se as mensagens estão sendo extraídas corretamente dos canais do Discord e se as notificações estão sendo enviadas para o Telegram. Verifique os logs da aplicação para garantir que não há erros e que todas as funcionalidades estão operando conforme esperado.
+
+---
 
 ## 📝 Manutenção e Dicas Adicionais
 
@@ -382,11 +385,15 @@ Após configurar e iniciar a aplicação, você pode testar a implantação veri
 - **Monitoramento**: Implemente monitoramento e alertas para acompanhar a saúde da aplicação e detectar problemas rapidamente.
 - **Backups**: Realize backups regulares do banco de dados para evitar perda de dados.
 
+---
+
 ## 📚 Recursos Adicionais
 
 - **Documentação do Discord API**: [Discord Developer Portal](https://discord.com/developers/docs/intro)
 - **Documentação do Rugcheck API**: [Rugcheck API Documentation](https://api.rugcheck.xyz/docs)
 - **Documentação do Telegram API**: [Telegram Bot API](https://core.telegram.org/bots/api)
+
+---
 
 ## 🔗 Links Úteis
 
@@ -398,11 +405,15 @@ Após configurar e iniciar a aplicação, você pode testar a implantação veri
 - **tweetnacl**: [tweetnacl GitHub Repository](https://github.com/dchest/tweetnacl-js)
 - **tweetnacl-util**: [tweetnacl-util GitHub Repository](https://github.com/dchest/tweetnacl-util-js)
 
-## Descrição
+---
+
+## 📜 Descrição
 
 O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensagens de canais do Discord e realizar análises e verificações utilizando diversas APIs e serviços. A aplicação é capaz de autenticar, buscar relatórios e enviar notificações para o Telegram.
 
-## Tecnologias Utilizadas
+---
+
+## 🛠️ Tecnologias Utilizadas
 
 - **Node.js**: Plataforma de desenvolvimento JavaScript.
 - **Express**: Framework para construção de APIs.
@@ -412,7 +423,9 @@ O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensa
 - **tweetnacl**: Biblioteca para criptografia e assinatura de mensagens.
 - **tweetnacl-util**: Utilitários para codificação e decodificação de dados na biblioteca `tweetnacl`.
 
-## Funcionalidades
+---
+
+## 📋 Funcionalidades
 
 - **Extração de Mensagens**: Extrai mensagens de canais do Discord em um período de tempo especificado.
 - **Autenticação**: Autentica na API do Rugcheck para obter relatórios de tokens.
@@ -420,14 +433,18 @@ O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensa
 - **Notificações**: Envia notificações para o Telegram com as mensagens extraídas e analisadas.
 - **Armazenamento**: Armazena mensagens extraídas no MongoDB.
 
-## Responsabilidades
+---
+
+## 📜 Responsabilidades
 
 - **messageService.js**: Responsável por extrair mensagens dos canais do Discord e realizar análises.
 - **rugcheckService.js**: Responsável por autenticar e buscar relatórios de tokens na API do Rugcheck.
 - **telegramService.js**: Responsável por enviar notificações para o Telegram.
 - **server.js**: Inicializa o servidor e configura as rotas da API.
 
-## Estrutura do projeto
+---
+
+## 📂 Estrutura do Projeto
 
 ```
 /Relay_Stratus
@@ -455,6 +472,12 @@ O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensa
 └── README.md
 ```
 
+## 🔗 Integrações
+
+- **Discord API**: Utilizada para extrair mensagens dos canais do Discord.
+- **Rugcheck API**: Utilizada para autenticar e buscar relatórios de tokens.
+- **Telegram API**: Utilizada para enviar notificações com as mensagens extraídas e analisadas.
+
 ## Dependências
 
 - **axios**: ^0.21.1
@@ -463,12 +486,6 @@ O Stratus Relayer Application é uma aplicação desenvolvida para extrair mensa
 - **mongoose**: ^5.10.9
 - **tweetnacl**: ^1.0.3
 - **tweetnacl-util**: ^0.15.1
-
-## Integrações
-
-- **Discord API**: Utilizada para extrair mensagens dos canais do Discord.
-- **Rugcheck API**: Utilizada para autenticar e buscar relatórios de tokens.
-- **Telegram API**: Utilizada para enviar notificações com as mensagens extraídas e analisadas.
 
 ## Configuração
 
