@@ -28,10 +28,10 @@ Bem-vindo ao **Stratus Relayer**, uma aplicação desenvolvida em **Node.js** qu
 12. [📝 Manutenção e Dicas Adicionais](#-manutenção-e-dicas-adicionais)
 13. [📚 Recursos Adicionais](#-recursos-adicionais)
 14. [🔗 Links Úteis](#-links-úteis)
-16. [🛠️ Tecnologias Utilizadas](#-tecnologias-utilizadas)
-17. [📋 Funcionalidades](#-funcionalidades)
-18. [📜 Responsabilidades](#-responsabilidades)
-15. [📂 Estrutura do Projeto](#-estrutura-do-projeto)
+15. [🛠️ Tecnologias Utilizadas](#-tecnologias-utilizadas)
+16. [📋 Funcionalidades](#-funcionalidades)
+17. [📜 Responsabilidades](#-responsabilidades)
+18. [📂 Estrutura do Projeto](#-estrutura-do-projeto)
 19. [🔗 Integrações](#-integrações)
 
 ---
