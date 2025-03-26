@@ -1,9 +1,9 @@
 import axios from 'axios';
 import Message from '../models/Message.js';
-import { sendToTelegram, sendToTelegramTest, sendToTelegramClient } from './telegramService.js';
+import { sendToTelegram, sendToTelegramClient } from './telegramService.js';
 import { formattedMessage } from '../utils/formatter.js';
 import { configDotenv } from 'dotenv';
-import { getTokenReportSummary } from './rugcheckService.js';
+import { getTokenReportSummary, loginToRugcheck } from './rugcheckService.js';
 
 configDotenv();
 
@@ -87,9 +87,13 @@ const retrieveMessages = async (channelId, hours) => {
                                                 updatedDescription.includes('[🤖 RayBot]');
                             if (tokenIdMatch) {
                                 // Autenticar e buscar relatório do Rugcheck
-                                const report = await getTokenReportSummary('', tokenIdMatch);
+                                const report = await getTokenReportSummary(loginToRugcheck, tokenIdMatch);
                                 console.log('Relatório do Rugcheck:', report);
     
+                                if (!report) {
+                                    sendToTelegramClient(`${username}: ${updatedDescription}`);
+                                    return;
+                                }
                                 // Extrair detalhes do token com segurança
                                 const token_program = report.tokenProgram || "Unknown";
                                 const token_type = (report.tokenType || "").trim();

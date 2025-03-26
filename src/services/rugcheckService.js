@@ -367,8 +367,7 @@ const getTokenReportSummary = async (authToken, tokenId) => {
     try {
         const response = await axios.get(`${API_URL}/tokens/${tokenId}/report/summary`, {
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
             },
         });
         if (response.status === 200) {
