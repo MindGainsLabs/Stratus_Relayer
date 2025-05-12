@@ -10,27 +10,30 @@ const options = {
         info: {
             title: 'Stratus Relayer API',
             version: '1.0.0',
-            description: 'API para extração e controle de mensagens do Discord, com integração a SSE e Telegram',
+            description: 'API for extracting and controlling Discord messages, with integration to SSE and Telegram',
         },
         servers: [
             {
-                url: `http://srv711516.hstgr.cloud`,
-                description: 'Servidor de produção',
+                url: `http://localhost:${process.env.PORT || 3000}`,
+                description: 'Development server',
             },
         ],
         components: {
             securitySchemes: {
                 bearerAuth: {
-                    type: 'http',
-                    scheme: 'bearer',
-                }
-            }
+                    type: 'apiKey',
+                    in: 'header',
+                    name: 'Authorization',
+                },
+            },
         },
-        security: [{
-            bearerAuth: []
-        }],
+        security: [
+            {
+                bearerAuth: [],
+            },
+        ],
     },
-    apis: ['./src/routes/*.js', './src/controllers/*.js'], // caminhos onde estão as anotações
+    apis: ['./src/routes/*.js', './src/controllers/*.js'], // paths to annotations
 };
 
 const swaggerSpec = swaggerJSDoc(options);

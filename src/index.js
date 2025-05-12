@@ -26,7 +26,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: ['http://srv800316.hstgr.cloud/', 'http://srv800316.hstgr.cloud//api-docs'],
+    origin: ['http://srv800316.hstgr.cloud/', 'http://srv800316.hstgr.cloud/api-docs'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
