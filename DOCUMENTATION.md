@@ -1,101 +1,101 @@
-# 📚 Documentação Detalhada do Stratus Relayer
+# 📚 Detailed Documentation for Stratus Relayer
 
-Este documento fornece uma explicação detalhada das funcionalidades do Stratus Relayer, um sistema de extração e análise de mensagens do Discord com integração ao Telegram e análise de tokens criptográficos.
+This document provides a detailed explanation of the functionalities of Stratus Relayer, a system for extracting and analyzing Discord messages with Telegram integration and cryptocurrency token analysis.
 
-## 📋 Índice
+## 📋 Table of Contents
 
-1. [Visão Geral do Sistema](#visão-geral-do-sistema)
-2. [Arquitetura do Sistema](#arquitetura-do-sistema)
-3. [Componentes Principais](#componentes-principais)
+1. [System Overview](#system-overview)
+2. [System Architecture](#system-architecture)
+3. [Main Components](#main-components)
 4. [API Endpoints](#api-endpoints)
-   - [Endpoints de Mensagens](#endpoints-de-mensagens)
-   - [Endpoints de Crypto Tracking](#endpoints-de-crypto-tracking)
-   - [Endpoints SSE](#endpoints-sse)
-5. [Funcionalidades Detalhadas](#funcionalidades-detalhadas)
-   - [Extração de Mensagens do Discord](#extração-de-mensagens-do-discord)
-   - [Análise de Tokens Crypto](#análise-de-tokens-crypto)
-   - [Integração com Rugcheck](#integração-com-rugcheck)
-   - [Envio para Telegram](#envio-para-telegram)
+   - [Message Endpoints](#message-endpoints)
+   - [Crypto Tracking Endpoints](#crypto-tracking-endpoints)
+   - [SSE Endpoints](#sse-endpoints)
+5. [Detailed Functionalities](#detailed-functionalities)
+   - [Discord Message Extraction](#discord-message-extraction)
+   - [Crypto Token Analysis](#crypto-token-analysis)
+   - [Rugcheck Integration](#rugcheck-integration)
+   - [Telegram Forwarding](#telegram-forwarding)
    - [SSE (Server-Sent Events)](#sse-server-sent-events)
-6. [Guia de Uso](#guia-de-uso)
-   - [Interface Web](#interface-web)
-   - [Consulta via API](#consulta-via-api)
-   - [Real-Time com SSE](#real-time-com-sse)
-7. [Estrutura de Dados](#estrutura-de-dados)
-   - [Modelo de Mensagem](#modelo-de-mensagem)
-   - [Dados de Token](#dados-de-token)
-   - [Relatório de Risco](#relatório-de-risco)
-8. [Fluxos de Trabalho](#fluxos-de-trabalho)
-   - [Processamento de Mensagem MULTI BUY](#processamento-de-mensagem-multi-buy)
-   - [Análise de Risco de Token](#análise-de-risco-de-token)
-9. [Solução de Problemas](#solução-de-problemas)
-10. [Melhores Práticas](#melhores-práticas)
-11. [Extensão do Sistema](#extensão-do-sistema)
+6. [Usage Guide](#usage-guide)
+   - [Web Interface](#web-interface)
+   - [API Queries](#api-queries)
+   - [Real-Time with SSE](#real-time-with-sse)
+7. [Data Structure](#data-structure)
+   - [Message Model](#message-model)
+   - [Token Data](#token-data)
+   - [Risk Report](#risk-report)
+8. [Workflows](#workflows)
+   - [MULTI BUY Message Processing](#multi-buy-message-processing)
+   - [Token Risk Analysis](#token-risk-analysis)
+9. [Troubleshooting](#troubleshooting)
+10. [Best Practices](#best-practices)
+11. [System Extension](#system-extension)
 
 ---
 
-## Visão Geral do Sistema
+## System Overview
 
-O Stratus Relayer é uma aplicação Node.js projetada para:
+Stratus Relayer is a Node.js application designed to:
 
-1. **Extrair mensagens** de canais específicos do Discord
-2. **Analisar tokens criptográficos** mencionados nas mensagens
-3. **Avaliar riscos** de tokens utilizando a API Rugcheck
-4. **Encaminhar mensagens** para grupos do Telegram
-5. **Armazenar e indexar** dados estruturados para consulta posterior
-6. **Fornecer análise estatística** de atividades de tokens e carteiras
-7. **Distribuir notificações em tempo real** via SSE (Server-Sent Events)
+1. **Extract messages** from specific Discord channels
+2. **Analyze cryptocurrency tokens** mentioned in the messages
+3. **Evaluate risks** of tokens using the Rugcheck API
+4. **Forward messages** to Telegram groups
+5. **Store and index** structured data for later querying
+6. **Provide statistical analysis** of token and wallet activities
+7. **Distribute real-time notifications** via SSE (Server-Sent Events)
 
-O sistema é particularmente focado em mensagens de "MULTI BUY", que mostram múltiplas carteiras comprando um determinado token criptográfico.
+The system particularly focuses on "MULTI BUY" messages, which show multiple wallets buying a specific cryptocurrency token.
 
 ---
 
-## Arquitetura do Sistema
+## System Architecture
 
-O Stratus Relayer segue uma arquitetura modular baseada em:
+Stratus Relayer follows a modular architecture based on:
 
-- **Camada de API**: Express.js para endpoints RESTful
-- **Camada de Persistência**: MongoDB para armazenamento de dados
-- **Camada de Serviço**: Módulos para lógica de negócio específica
-- **Integrações Externas**: Discord API, Rugcheck API e Telegram API
-- **Comunicação em Tempo Real**: SSE para atualizações push
+- **API Layer**: Express.js for RESTful endpoints
+- **Persistence Layer**: MongoDB for data storage
+- **Service Layer**: Modules for specific business logic
+- **External Integrations**: Discord API, Rugcheck API, and Telegram API
+- **Real-Time Communication**: SSE for push updates
 
 ```
-[Discord API] <-- Extração --> [Stratus Relayer] <-- Envio --> [Telegram]
-                                     |
-                                     | Análise
-                                     v
-                              [Rugcheck API]
+[Discord API] <-- Extraction --> [Stratus Relayer] <-- Forwarding --> [Telegram]
+                                       |
+                                       | Analysis
+                                       v
+                                [Rugcheck API]
 ```
 
 ---
 
-## Componentes Principais
+## Main Components
 
-1. **messageService.js**: Extrai mensagens do Discord e processa seu conteúdo
-2. **rugcheckService.js**: Se comunica com a API Rugcheck para análise de tokens
-3. **telegramService.js**: Envia mensagens formatadas para o Telegram
-4. **tokenParser.js**: Analisa e estrutura dados de tokens a partir do texto das mensagens
-5. **cryptoTrackingService.js**: Gerencia estatísticas e análises de dados de criptomoedas
-6. **sseRoutes.js**: Fornece atualizações em tempo real via SSE
+1. **messageService.js**: Extracts messages from Discord and processes their content
+2. **rugcheckService.js**: Communicates with the Rugcheck API for token analysis
+3. **telegramService.js**: Sends formatted messages to Telegram
+4. **tokenParser.js**: Analyzes and structures token data from message text
+5. **cryptoTrackingService.js**: Manages statistics and analysis of cryptocurrency data
+6. **sseRoutes.js**: Provides real-time updates via SSE
 
 ---
 
 ## API Endpoints
 
-### Endpoints de Mensagens
+### Message Endpoints
 
 #### `POST /api/retrieve-messages`
-Extrai mensagens do Discord e retorna os dados estruturados.
+Extracts messages from Discord and returns structured data.
 
-**Parâmetros do corpo:**
-- `channelId` (string): ID do canal Discord para extrair mensagens
-- `hours` (number): Quantas horas atrás deve buscar mensagens
+**Body Parameters:**
+- `channelId` (string): Discord channel ID to extract messages from
+- `hours` (number): How many hours back to fetch messages
 
-**Resposta:**
+**Response:**
 ```json
 {
-  "message": "Mensagens coletadas com sucesso.",
+  "message": "Messages collected successfully.",
   "data": {
     "multiBuyAlerts": [...],
     "tokenAlerts": [...],
@@ -107,14 +107,14 @@ Extrai mensagens do Discord e retorna os dados estruturados.
 ```
 
 #### `GET /api/download-messages`
-Gera um arquivo de texto formatado com todas as mensagens armazenadas.
+Generates a formatted text file with all stored messages.
 
-**Resposta:** Arquivo texto para download
+**Response:** Text file for download
 
 #### `GET /api/total-messages`
-Retorna o número total de mensagens armazenadas.
+Returns the total number of stored messages.
 
-**Resposta:**
+**Response:**
 ```json
 {
   "total": 1337
@@ -122,9 +122,9 @@ Retorna o número total de mensagens armazenadas.
 ```
 
 #### `GET /api/message-stats`
-Retorna estatísticas agregadas sobre as mensagens armazenadas.
+Returns aggregated statistics about stored messages.
 
-**Resposta:**
+**Response:**
 ```json
 {
   "messageCounts": {
@@ -140,13 +140,13 @@ Retorna estatísticas agregadas sobre as mensagens armazenadas.
 ```
 
 #### `GET /api/search-tokens`
-Busca tokens por símbolo ou ID.
+Searches tokens by symbol or ID.
 
-**Parâmetros de query:**
-- `query` (string): Termo de busca
-- `limit` (number, opcional): Quantidade máxima de resultados (padrão: 10)
+**Query Parameters:**
+- `query` (string): Search term
+- `limit` (number, optional): Maximum number of results (default: 10)
 
-**Resposta:**
+**Response:**
 ```json
 {
   "tokens": [...],
@@ -154,18 +154,18 @@ Busca tokens por símbolo ou ID.
 }
 ```
 
-### Endpoints de Crypto Tracking
+### Crypto Tracking Endpoints
 
 #### `POST /api/crypto/structured-data`
-Obtém dados estruturados de tracking de criptomoedas.
+Gets structured cryptocurrency tracking data.
 
-**Parâmetros do corpo:**
-- `hours` (number): Quantas horas atrás deve analisar
-- `tokenSymbol` (string, opcional): Filtrar por símbolo específico
-- `walletName` (string, opcional): Filtrar por carteira específica
-- `channelId` (string, opcional): ID do canal para atualizar dados antes da análise
+**Body Parameters:**
+- `hours` (number): How many hours back to analyze
+- `tokenSymbol` (string, optional): Filter by specific symbol
+- `walletName` (string, optional): Filter by specific wallet
+- `channelId` (string, optional): Channel ID to update data before analysis
 
-**Resposta:**
+**Response:**
 ```json
 {
   "message": "Crypto tracking data retrieved successfully",
@@ -186,12 +186,12 @@ Obtém dados estruturados de tracking de criptomoedas.
 ```
 
 #### `GET /api/crypto/token-stats`
-Obtém estatísticas gerais sobre tokens.
+Gets general token statistics.
 
-**Parâmetros de query:**
-- `hours` (number, opcional): Período de análise em horas (padrão: 24)
+**Query Parameters:**
+- `hours` (number, optional): Analysis period in hours (default: 24)
 
-**Resposta:**
+**Response:**
 ```json
 {
   "message": "Token statistics generated successfully",
@@ -206,13 +206,13 @@ Obtém estatísticas gerais sobre tokens.
 ```
 
 #### `GET /api/crypto/search`
-Busca tokens por símbolo ou ID parcial.
+Searches tokens by symbol or partial ID.
 
-**Parâmetros de query:**
-- `query` (string): Termo de busca
-- `hours` (number, opcional): Período de análise em horas (padrão: 24)
+**Query Parameters:**
+- `query` (string): Search term
+- `hours` (number, optional): Analysis period in hours (default: 24)
 
-**Resposta:**
+**Response:**
 ```json
 {
   "message": "Token search results",
@@ -225,14 +225,14 @@ Busca tokens por símbolo ou ID parcial.
 ```
 
 #### `GET /api/crypto/top-tokens`
-Retorna os principais tokens por diferentes métricas.
+Returns the top tokens by different metrics.
 
-**Parâmetros de query:**
-- `metric` (string): Métrica para ordenação ('totalSol', 'mentions', 'uniqueWallets', 'riskScore')
-- `hours` (number, opcional): Período de análise em horas (padrão: 24)
-- `limit` (number, opcional): Quantidade máxima de resultados (padrão: 10)
+**Query Parameters:**
+- `metric` (string): Metric for sorting ('totalSol', 'mentions', 'uniqueWallets', 'riskScore')
+- `hours` (number, optional): Analysis period in hours (default: 24)
+- `limit` (number, optional): Maximum number of results (default: 10)
 
-**Resposta:**
+**Response:**
 ```json
 {
   "message": "Top 10 tokens by totalSol",
@@ -244,69 +244,69 @@ Retorna os principais tokens por diferentes métricas.
 }
 ```
 
-### Endpoints SSE
+### SSE Endpoints
 
 #### `GET /sse/stream`
-Estabelece uma conexão SSE para receber atualizações em tempo real.
+Establishes an SSE connection to receive real-time updates.
 
-**Resposta:** Stream de eventos SSE
+**Response:** SSE event stream
 
 ---
 
-## Funcionalidades Detalhadas
+## Detailed Functionalities
 
-### Extração de Mensagens do Discord
+### Discord Message Extraction
 
-O sistema extrai mensagens de canais específicos do Discord usando as seguintes estratégias:
+The system extracts messages from specific Discord channels using the following strategies:
 
-1. **Extração agendada**: O sistema executa regularmente um job CRON que busca novas mensagens
-2. **Extração sob demanda**: API endpoints permitem solicitar extração para períodos específicos
-3. **Bot Discord**: Um bot Discord pode ser configurado para capturar mensagens em tempo real
+1. **Scheduled extraction**: The system regularly runs a CRON job that fetches new messages
+2. **On-demand extraction**: API endpoints allow requesting extraction for specific periods
+3. **Discord Bot**: A Discord bot can be configured to capture messages in real-time
 
-**Como usar:**
+**How to use:**
 
-1. **Via Interface Web**:
-   - Acesse a página principal do sistema
-   - Preencha o ID do canal Discord e o período de horas
-   - Clique em "Extract Messages"
+1. **Via Web Interface**:
+   - Access the system's main page
+   - Fill in the Discord channel ID and hours period
+   - Click on "Extract Messages"
 
 2. **Via API**:
    ```bash
-   curl -X POST http://seu-servidor/api/retrieve-messages \
+   curl -X POST http://your-server/api/retrieve-messages \
      -H "Content-Type: application/json" \
-     -H "Authorization: Bearer seu_token_jwt" \
+     -H "Authorization: Bearer your_jwt_token" \
      -d '{"channelId": "123456789012345678", "hours": 24}'
    ```
 
-### Análise de Tokens Crypto
+### Crypto Token Analysis
 
-O sistema analisa mensagens de "MULTI BUY" para extrair:
+The system analyzes "MULTI BUY" messages to extract:
 
-1. **Identificação do Token**: Símbolo e ID do token
-2. **Volume de Transações**: Total de SOL utilizado nas compras
-3. **Atividade de Carteiras**: Quais carteiras compraram, quanto e quando
-4. **Estatísticas de Retenção**: Quanto cada carteira está retendo (%)
-5. **Plataformas**: Em quais plataformas o token está sendo negociado
+1. **Token Identification**: Token symbol and ID
+2. **Transaction Volume**: Total SOL used in purchases
+3. **Wallet Activity**: Which wallets bought, how much and when
+4. **Retention Statistics**: How much each wallet is holding (%)
+5. **Platforms**: On which platforms the token is being traded
 
-**Como usar:**
+**How to use:**
 
 ```bash
-curl -X POST http://seu-servidor/api/crypto/structured-data \
+curl -X POST http://your-server/api/crypto/structured-data \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer seu_token_jwt" \
+  -H "Authorization: Bearer your_jwt_token" \
   -d '{"hours": 24}'
 ```
 
-### Integração com Rugcheck
+### Rugcheck Integration
 
-Para cada token identificado, o sistema pode:
+For each identified token, the system can:
 
-1. Consultar a API Rugcheck para avaliação de risco
-2. Analisar fatores específicos de risco (liquidez, código, histórico)
-3. Calcular uma pontuação normalizada de risco (0-100)
-4. Anexar o relatório completo à mensagem
+1. Query the Rugcheck API for risk assessment
+2. Analyze specific risk factors (liquidity, code, history)
+3. Calculate a normalized risk score (0-100)
+4. Attach the complete report to the message
 
-**Exemplo de relatório:**
+**Report Example:**
 
 ```
 ✅ Token Risk Report Summary:
@@ -324,172 +324,172 @@ Para cada token identificado, o sistema pode:
 🟩 Score Normalised: 31
 ```
 
-### Envio para Telegram
+### Telegram Forwarding
 
-O sistema pode enviar mensagens formatadas para grupos do Telegram:
+The system can send formatted messages to Telegram groups:
 
-1. Preserva a formatação original da mensagem do Discord
-2. Adiciona contexto adicional (como relatórios de risco)
-3. Oferece links diretos para ferramentas de análise
+1. Preserves the original formatting of the Discord message
+2. Adds additional context (like risk reports)
+3. Offers direct links to analysis tools
 
-**Configuração:**
-- Defina `TELEGRAM_TOKEN` e `TELEGRAM_CHAT_ID` no arquivo `.env`
+**Configuration:**
+- Set `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` in the `.env` file
 
 ### SSE (Server-Sent Events)
 
-O sistema oferece atualizações em tempo real via SSE:
+The system offers real-time updates via SSE:
 
-1. Notificações instantâneas quando novas mensagens são detectadas
-2. Dados estruturados prontos para exibição
-3. Conexão persistente para atualizações em tempo real
+1. Instant notifications when new messages are detected
+2. Structured data ready for display
+3. Persistent connection for real-time updates
 
-**Como conectar:**
+**How to connect:**
 
 **HTML/JavaScript**:
 ```javascript
 const eventSource = new EventSource('/sse/stream');
 eventSource.onmessage = function(event) {
   const data = JSON.parse(event.data);
-  console.log('Nova mensagem recebida:', data);
-  // Processo para atualizar a UI
+  console.log('New message received:', data);
+  // Process to update the UI
 };
 ```
 
 **cURL**:
 ```bash
-curl -N -H "Accept: text/event-stream" -H "Authorization: Bearer seu_token_jwt" http://seu-servidor/sse/stream
+curl -N -H "Accept: text/event-stream" -H "Authorization: Bearer your_jwt_token" http://your-server/sse/stream
 ```
 
 ---
 
-## Guia de Uso
+## Usage Guide
 
-### Interface Web
+### Web Interface
 
-A aplicação inclui uma interface web simples para interagir com o sistema:
+The application includes a simple web interface to interact with the system:
 
-1. **Página Principal**: Extração manual de mensagens
-   - URL: `http://seu-servidor/`
-   - Funcionalidades:
-     - Extração de mensagens por ID de canal e período
-     - Download dos resultados em formato texto
-     - Autenticação via token
+1. **Main Page**: Manual message extraction
+   - URL: `http://your-server/`
+   - Features:
+     - Message extraction by channel ID and period
+     - Download results in text format
+     - Authentication via token
 
-2. **Página SSE**: Visualização em tempo real
-   - URL: `http://seu-servidor/SSE.html`
-   - Funcionalidades:
-     - Stream em tempo real de novas mensagens
-     - Formatação automática de mensagens MULTI BUY
+2. **SSE Page**: Real-time visualization
+   - URL: `http://your-server/SSE.html`
+   - Features:
+     - Real-time stream of new messages
+     - Automatic formatting of MULTI BUY messages
 
-### Consulta via API
+### API Queries
 
-Para integrar com outras aplicações, use os endpoints API:
+To integrate with other applications, use the API endpoints:
 
-1. **Autenticação**: Todos os endpoints requerem autenticação via token JWT
-   - Adicione o header `Authorization: Bearer seu_token_jwt`
+1. **Authentication**: All endpoints require authentication via JWT token
+   - Add the header `Authorization: Bearer your_jwt_token`
 
-2. **Exemplos de consultas comuns**:
+2. **Common query examples**:
 
-   - **Buscar as mensagens das últimas 24 horas**:
+   - **Fetch messages from the last 24 hours**:
      ```bash
-     curl -X POST http://seu-servidor/api/retrieve-messages \
+     curl -X POST http://your-server/api/retrieve-messages \
        -H "Content-Type: application/json" \
-       -H "Authorization: Bearer seu_token_jwt" \
+       -H "Authorization: Bearer your_jwt_token" \
        -d '{"hours": 24}'
      ```
 
-   - **Buscar estatísticas de tokens**:
+   - **Fetch token statistics**:
      ```bash
-     curl -X GET http://seu-servidor/api/crypto/token-stats?hours=24 \
-       -H "Authorization: Bearer seu_token_jwt"
+     curl -X GET http://your-server/api/crypto/token-stats?hours=24 \
+       -H "Authorization: Bearer your_jwt_token"
      ```
 
-   - **Buscar tokens com maior volume**:
+   - **Fetch tokens with highest volume**:
      ```bash
-     curl -X GET "http://seu-servidor/api/crypto/top-tokens?metric=totalSol&hours=24&limit=10" \
-       -H "Authorization: Bearer seu_token_jwt"
+     curl -X GET "http://your-server/api/crypto/top-tokens?metric=totalSol&hours=24&limit=10" \
+       -H "Authorization: Bearer your_jwt_token"
      ```
 
-   - **Buscar token específico**:
+   - **Fetch specific token**:
      ```bash
-     curl -X GET "http://seu-servidor/api/crypto/search?query=COIN1&hours=24" \
-       -H "Authorization: Bearer seu_token_jwt"
+     curl -X GET "http://your-server/api/crypto/search?query=COIN1&hours=24" \
+       -H "Authorization: Bearer your_jwt_token"
      ```
 
-### Real-Time com SSE
+### Real-Time with SSE
 
-Para receber atualizações em tempo real:
+To receive real-time updates:
 
-1. **Conectar ao endpoint SSE**:
+1. **Connect to SSE endpoint**:
    ```javascript
-   // Em JavaScript
+   // In JavaScript
    const eventSource = new EventSource('/sse/stream');
    eventSource.onmessage = function(event) {
      const messages = JSON.parse(event.data);
      messages.forEach(message => {
-       // Processar cada mensagem
-       console.log(`Nova mensagem de ${message.author.username}`);
+       // Process each message
+       console.log(`New message from ${message.author.username}`);
      });
    };
    ```
 
-2. **Tratar desconexões**:
+2. **Handle disconnections**:
    ```javascript
    eventSource.onerror = function(error) {
-     console.error('Erro na conexão SSE:', error);
+     console.error('SSE connection error:', error);
      eventSource.close();
-     // Reconectar após um tempo
+     // Reconnect after a while
      setTimeout(() => {
-       // Lógica de reconexão
+       // Reconnection logic
      }, 5000);
    };
    ```
 
 ---
 
-## Estrutura de Dados
+## Data Structure
 
-### Modelo de Mensagem
+### Message Model
 
-As mensagens são armazenadas no MongoDB com a seguinte estrutura:
+Messages are stored in MongoDB with the following structure:
 
 ```javascript
 {
-  id: "message_id",              // ID único da mensagem
-  username: "Author Name",       // Nome do autor da mensagem
-  channelId: "channel_id",       // Canal de origem
-  description: "Raw content",    // Conteúdo original da mensagem
-  createdAt: Date,               // Data de criação
-  messageType: "MULTI_BUY",      // Tipo da mensagem (MULTI_BUY, TOKEN_ALERT, OTHER)
+  id: "message_id",              // Unique message ID
+  username: "Author Name",       // Message author's name
+  channelId: "channel_id",       // Source channel
+  description: "Raw content",    // Original message content
+  createdAt: Date,               // Creation date
+  messageType: "MULTI_BUY",      // Message type (MULTI_BUY, TOKEN_ALERT, OTHER)
   
-  // Dados estruturados (para mensagens MULTI_BUY)
-  tokenSymbol: "COIN1",          // Símbolo do token
-  tokenId: "token_address",      // Endereço/ID do token
-  totalSol: 53.23,               // Volume total em SOL
-  walletsCount: 5,               // Número de carteiras
-  timeframe: "0.5 hours",        // Período de tempo mencionado
-  marketCap: "$787.40K",         // Market cap mencionado
+  // Structured data (for MULTI_BUY messages)
+  tokenSymbol: "COIN1",          // Token symbol
+  tokenId: "token_address",      // Token address/ID
+  totalSol: 53.23,               // Total volume in SOL
+  walletsCount: 5,               // Number of wallets
+  timeframe: "0.5 hours",        // Time period mentioned
+  marketCap: "$787.40K",         // Market cap mentioned
   
-  // Transações detalhadas
+  // Detailed transactions
   transactions: [
     {
-      walletName: "pinyo.sol",   // Nome da carteira
-      txTime: "0s",              // Tempo da transação
-      amount: 9.90,              // Valor em SOL
-      marketCap: "$787.40K",     // Market cap no momento
-      totalBuy: 9.90,            // Compra total da carteira
-      holdingPercentage: 100     // Percentual retido
+      walletName: "pinyo.sol",   // Wallet name
+      txTime: "0s",              // Transaction time
+      amount: 9.90,              // Value in SOL
+      marketCap: "$787.40K",     // Market cap at the time
+      totalBuy: 9.90,            // Wallet's total buy
+      holdingPercentage: 100     // Percentage retained
     },
-    // Mais transações...
+    // More transactions...
   ],
   
-  // Links relacionados
+  // Related links
   links: {
     dexScreener: "https://...",
-    // Mais links...
+    // More links...
   },
   
-  // Relatório de risco (quando disponível)
+  // Risk report (when available)
   riskReport: {
     tokenProgram: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
     tokenType: "Unknown",
@@ -500,7 +500,7 @@ As mensagens são armazenadas no MongoDB com a seguinte estrutura:
         score: 2000,
         level: "warn"
       }
-      // Mais riscos...
+      // More risks...
     ],
     finalScore: 2401,
     normalizedScore: 31
@@ -508,9 +508,9 @@ As mensagens são armazenadas no MongoDB com a seguinte estrutura:
 }
 ```
 
-### Dados de Token
+### Token Data
 
-As estatísticas de tokens são geradas com a seguinte estrutura:
+Token statistics are generated with the following structure:
 
 ```javascript
 {
@@ -525,9 +525,9 @@ As estatísticas de tokens são geradas com a seguinte estrutura:
 }
 ```
 
-### Relatório de Risco
+### Risk Report
 
-Os relatórios de risco seguem esta estrutura:
+Risk reports follow this structure:
 
 ```javascript
 {
@@ -540,7 +540,7 @@ Os relatórios de risco seguem esta estrutura:
       score: 2000,
       level: "warn"
     }
-    // Mais riscos...
+    // More risks...
   ],
   finalScore: 2401,
   normalizedScore: 31
@@ -549,113 +549,113 @@ Os relatórios de risco seguem esta estrutura:
 
 ---
 
-## Fluxos de Trabalho
+## Workflows
 
-### Processamento de Mensagem MULTI BUY
+### MULTI BUY Message Processing
 
-Quando uma mensagem MULTI BUY é detectada:
+When a MULTI BUY message is detected:
 
-1. **Extração e Parsing**:
-   - O sistema identifica o padrão "MULTI BUY" no texto
-   - O `tokenParser.js` extrai dados estruturados do texto
-   - Informações como token, carteiras e volumes são extraídas
+1. **Extraction and Parsing**:
+   - The system identifies the "MULTI BUY" pattern in the text
+   - The `tokenParser.js` extracts structured data from the text
+   - Information like token, wallets, and volumes are extracted
 
-2. **Enriquecimento**:
-   - O sistema verifica se o token já é conhecido
-   - Se não existir informação de risco, consulta o Rugcheck
-   - Anexa o relatório de risco aos dados
+2. **Enrichment**:
+   - The system checks if the token is already known
+   - If risk information doesn't exist, it queries Rugcheck
+   - Attaches the risk report to the data
 
-3. **Armazenamento**:
-   - A mensagem original e os dados estruturados são salvos no MongoDB
-   - Estatísticas agregadas são atualizadas
+3. **Storage**:
+   - The original message and structured data are saved in MongoDB
+   - Aggregated statistics are updated
 
-4. **Distribuição**:
-   - A mensagem formatada é enviada ao Telegram
-   - Notificações SSE são enviadas para clientes conectados
-   - A mensagem é disponibilizada via API
+4. **Distribution**:
+   - The formatted message is sent to Telegram
+   - SSE notifications are sent to connected clients
+   - The message is made available via API
 
-### Análise de Risco de Token
+### Token Risk Analysis
 
-Quando um novo token é identificado:
+When a new token is identified:
 
-1. **Detecção**: O sistema extrai o ID do token da mensagem
-2. **Consulta**: O sistema consulta a API Rugcheck para obter informações
-3. **Análise**: Fatores de risco são analisados e pontuados
-4. **Classificação**: Uma pontuação normalizada é calculada (0-100)
-5. **Armazenamento**: O relatório é armazenado com a mensagem
-
----
-
-## Solução de Problemas
-
-### Problemas Comuns e Soluções
-
-1. **Mensagens não estão sendo extraídas**:
-   - Verifique se o ID do canal está correto
-   - Confirme se o token Discord tem permissões suficientes
-   - Verifique os logs do servidor para erros de API
-
-2. **Relatórios de risco não estão sendo obtidos**:
-   - Verifique a conexão com a API Rugcheck
-   - Confirme se `RUGCHECK_API_URL` e `RUGCHECK_TOKEN_ID` estão configurados corretamente
-   - Verifique se o token sendo analisado é válido
-
-3. **Mensagens não estão sendo enviadas ao Telegram**:
-   - Confirme se `TELEGRAM_TOKEN` e `TELEGRAM_CHAT_ID` estão corretos
-   - Verifique se o bot tem permissão para enviar mensagens no grupo
-   - Consulte os logs para erros específicos da API Telegram
-
-4. **SSE não está enviando atualizações**:
-   - Verifique se o cliente está conectado corretamente
-   - Confirme se a autenticação está sendo feita
-   - Verifique se há mensagens sendo processadas
+1. **Detection**: The system extracts the token ID from the message
+2. **Query**: The system queries the Rugcheck API to get information
+3. **Analysis**: Risk factors are analyzed and scored
+4. **Classification**: A normalized score is calculated (0-100)
+5. **Storage**: The report is stored with the message
 
 ---
 
-## Melhores Práticas
+## Troubleshooting
 
-1. **Monitoramento**:
-   - Configure alertas para falhas na extração de mensagens
-   - Monitore o uso da API (rate limits)
-   - Acompanhe o crescimento do banco de dados
+### Common Problems and Solutions
+
+1. **Messages are not being extracted**:
+   - Check if the channel ID is correct
+   - Confirm if the Discord token has sufficient permissions
+   - Check server logs for API errors
+
+2. **Risk reports are not being obtained**:
+   - Check the connection to the Rugcheck API
+   - Confirm if `RUGCHECK_API_URL` and `RUGCHECK_TOKEN_ID` are properly configured
+   - Check if the token being analyzed is valid
+
+3. **Messages are not being sent to Telegram**:
+   - Confirm if `TELEGRAM_TOKEN` and `TELEGRAM_CHAT_ID` are correct
+   - Check if the bot has permission to send messages in the group
+   - Check the logs for specific Telegram API errors
+
+4. **SSE is not sending updates**:
+   - Check if the client is properly connected
+   - Confirm if authentication is being done
+   - Check if messages are being processed
+
+---
+
+## Best Practices
+
+1. **Monitoring**:
+   - Configure alerts for failures in message extraction
+   - Monitor API usage (rate limits)
+   - Track database growth
 
 2. **Backup**:
-   - Faça backup regular do banco MongoDB
-   - Exporte dados processados periodicamente
+   - Regularly backup the MongoDB database
+   - Periodically export processed data
 
-3. **Segurança**:
-   - Mantenha as chaves de API seguras
-   - Use HTTPS para todas as conexões
-   - Implemente rate limiting para os endpoints da API
+3. **Security**:
+   - Keep API keys secure
+   - Use HTTPS for all connections
+   - Implement rate limiting for API endpoints
 
 4. **Performance**:
-   - Use caching para consultas frequentes
-   - Considere índices MongoDB para consultas comuns
-   - Implemente paginação para grandes conjuntos de resultados
+   - Use caching for frequent queries
+   - Consider MongoDB indexes for common queries
+   - Implement pagination for large result sets
 
 ---
 
-## Extensão do Sistema
+## System Extension
 
-O Stratus Relayer pode ser estendido das seguintes formas:
+Stratus Relayer can be extended in the following ways:
 
-1. **Suporte a mais tipos de mensagem**:
-   - Implemente parsers para outros formatos de mensagem
-   - Adicione novos tipos de dados estruturados
+1. **Support for more message types**:
+   - Implement parsers for other message formats
+   - Add new types of structured data
 
-2. **Integrações adicionais**:
-   - Conecte a outras fontes de dados (Twitter, Reddit)
-   - Integre com outras ferramentas de análise de tokens
+2. **Additional integrations**:
+   - Connect to other data sources (Twitter, Reddit)
+   - Integrate with other token analysis tools
 
-3. **Funcionalidades avançadas**:
-   - Implemente análise de sentimento
-   - Adicione aprendizado de máquina para detecção de padrões
-   - Desenvolva visualizações e dashboards
+3. **Advanced features**:
+   - Implement sentiment analysis
+   - Add machine learning for pattern detection
+   - Develop visualizations and dashboards
 
-4. **Alertas personalizados**:
-   - Adicione sistema de alertas baseados em regras
-   - Implemente notificações push para eventos específicos
+4. **Custom alerts**:
+   - Add rule-based alert system
+   - Implement push notifications for specific events
 
 ---
 
-Este documento será atualizado conforme o sistema evolui. Para informações adicionais, consulte o código-fonte e os comentários no repositório.
+This document will be updated as the system evolves. For additional information, refer to the source code and comments in the repository.
