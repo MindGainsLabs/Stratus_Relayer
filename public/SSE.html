@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stratus SSE - Realtime wallet tracker</title>
+    <!-- icons lib -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --background-color: #f3f3f3;
+            --text-color: #333;
+            --header-background: #ffffff;
+            --message-background: #fdfdfd;
+            --border-color: #e0e0e0;
+            --link-color: #007bff;
+            --input-background: #ffffff;
+            --input-border: #ccc;
+            --input-text-color: #333;
+            --input-placeholder-color: #999;
+            --input-focus-border: #007bff;
+            --input-focus-background: #f9f9f9;
+            --input-focus-text-color: #333;
+            --input-focus-placeholder-color: #666;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #121212;
+            --text-color: #ffffff;
+            --header-background: #1e1e1e;
+            --message-background: #1e1e1e;
+            --border-color: #333;
+            --link-color: #4dabf7;
+            --input-background: #1e1e1e;
+            --input-border: #444;
+            --input-text-color: #ffffff;
+            --input-placeholder-color: #bbb;
+            --input-focus-border: #4dabf7;
+            --input-focus-background: #1e1e1e;
+            --input-focus-text-color: #ffffff;
+            --input-focus-placeholder-color: #bbb;
+        }
+
+        body {
+            background: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--header-background);
+            padding: 20px;
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--text-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: var(--header-background);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .messages {
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            min-height: 200px;
+            background: var(--message-background);
+            border-radius: 10px;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .message {
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 0;
+            font-size: 16px;
+        }
+
+        .message:last-child {
+            border: none;
+        }
+
+        .message strong {
+            color: var(--link-color);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .footer a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            width: fit-content;
+            height: fit-content;
+            top: 20px;
+            right: 20px;
+            background: var(--header-background);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--link-color);
+            color: #fff;
+        }
+
+        .sse-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: var(--header-background);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            width: 200px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 10px 20px;
+            background: var(--header-background);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s, color 0.3s;
+            /* espaco entre os itens de dentro */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .sse-link:hover {
+            opacity: 0.6;
+            text-decoration: none;
+        }
+
+        #authToken {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--input-border);
+            border-radius: 5px;
+            background: var(--input-background);
+            color: var(--input-text-color);
+        }
+
+        #authToken::placeholder {
+            color: var(--input-placeholder-color);
+        }
+
+        #authToken:focus {
+            border-color: var(--input-focus-border);
+            background: var(--input-focus-background);
+            color: var(--input-focus-text-color);
+        }
+
+        #authToken:focus::placeholder {
+            color: var(--input-focus-placeholder-color);
+        }
+
+        #authToken:focus {
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="index.html" class="sse-link"><i class="fas fa-home"></i> Back to Home</a>
+    <button class="theme-toggle" id="themeToggle"></button>
+    <div class="header">Stratus SSE - Realtime wallet tracker</div>
+    <input type="text" id="authToken" placeholder="Enter your access token"
+        style="width: 300px; padding: 10px; margin-bottom: 20px;">
+    <div class="container">
+        <div id="messages" class="messages"></div>
+    </div>
+    <div class="footer">© 2025 Stratus - All rights reserved | <a href="#">Privacy Policy</a></div>
+    <script>
+        // Theme toggle logic
+        const themeToggle = document.getElementById('themeToggle');
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+
+        themeToggle.innerHTML = currentTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+
+        themeToggle.addEventListener('click', () => {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeToggle.innerHTML = newTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        });
+
+        // SSE logic
+        const authTokenInput = document.getElementById('authToken');
+
+        authTokenInput.addEventListener('change', function () {
+            const token = this.value;
+            const eventSource = new EventSource(`/sse/stream?token=${token}`);
+
+            if(eventSource.readyState === EventSource.CONNECTING) {
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML += `<div class="message">Listening...</div>`;
+            }
+
+            eventSource.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                const messagesDiv = document.getElementById('messages');
+                const messages = data.map(msg => {
+                    let content = msg.content || '';
+                    if (msg.embeds && msg.embeds.length > 0) {
+                        content = msg.embeds.map(embed => {
+                            const markdownContent = marked.parse(embed.description || '');
+                            return markdownContent;
+                        }).join(', ');
+                    }
+                    const username = msg.author.username || 'Desconhecido';
+                    return `<div class="message">
+                    <strong>${username}:</strong> ${content}
+                </div>`;
+                }).join('');
+                messagesDiv.innerHTML += messages;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            };
+
+            eventSource.onerror = function (err) {
+                console.error("EventSource failed:", err);
+            };
+        });
+        const authToken = authTokenInput.value;
+        const storedToken = localStorage.getItem('authToken');
+        if (storedToken) {
+            document.getElementById('authToken').value = storedToken;
+        }
+
+
+
+    </script>
+</body>
+
+</html>

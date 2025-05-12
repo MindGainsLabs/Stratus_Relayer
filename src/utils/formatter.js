@@ -48,4 +48,27 @@ const formattedMessage = (message) => {
     return formatted;
 };
 
-export { formattedMessage };
+function formatMultiBuyMessage(message) {
+    let formatted = message;
+    // Exemplo: aplicar formatação na primeira linha: adicionar bold na bannière
+    formatted = formatted.replace(/(‼️\s*🟢\s*MULTI BUY)\s*(⬜️)/i, "$1 **$2**");
+
+    // Formatar wallet count: deixa em negrito o trecho que contenha "wallets"
+    formatted = formatted.replace(/(\d+\s*wallets)/i, "**$1**");
+    // Formatar total: deixa em negrito o valor SOL
+    formatted = formatted.replace(/Total:\s*([0-9\.]+\s*SOL)/i, "Total: **$1**");
+
+    // Para cada bloco iniciado com "🔹", coloca o número em negrito
+    formatted = formatted.replace(/(🔹)\s*(\d+)/g, "🔹**$2**");
+    // Formata linhas que começam com "├" para deixar o conteúdo em negrito
+    formatted = formatted.replace(/(├)([^└\n]+)/g, "├**$2**");
+    // Você pode adicionar outros replaces conforme o padrão desejado.
+    // Por exemplo, formatar links e outros elementos:
+    // Converter "DS" para link (exemplo simples):
+    formatted = formatted.replace(/DS\s*\:\s*([^\s]+)/, "DS: [$1](https://dexscreener.com/solana/$1)");
+    // Ajuste de acordo com as regras que você precisar.
+
+    return formatted;
+}
+
+export { formattedMessage, formatMultiBuyMessage };

@@ -363,11 +363,11 @@ const voteOnToken = async (authToken, tokenId) => {
     }
 }
 
-const getTokenReportSummary = async (authToken, tokenId) => {
+const getTokenReportSummary = async (tokenId) => {
     try {
         const response = await axios.get(`${API_URL}/tokens/${tokenId}/report/summary`, {
             headers: {
-                'Content-Type': 'application/json'
+                'accept': 'application/json'
             },
         });
         if (response.status === 200) {
