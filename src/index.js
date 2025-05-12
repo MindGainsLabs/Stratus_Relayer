@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import cron from 'node-cron';
 import connectDB from './config/db.js';
 import messageRoutes from './routes/messageRoutes.js';
+import cryptoTrackingRoutes from './routes/cryptoTrackingRoutes.js';
 import { retrieveMessages } from './services/messageService.js';
 import { sseRoutes, sendEventsToAll } from './routes/sseRoutes.js';
 import { swaggerUi, swaggerSpec } from './swagger.js';
@@ -69,6 +70,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Rotas da API, SSE e Swagger
 app.use('/api', messageRoutes);
+app.use('/api/crypto', cryptoTrackingRoutes);
 app.use('/sse', sseRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

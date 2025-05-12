@@ -1,5 +1,5 @@
 {
-  "name": "discord_relay_node",
+  "name": "stratus_relayer",
   "version": "1.0.0",
   "main": "src/index.js",
   "type": "module",

@@ -50,25 +50,141 @@ const formattedMessage = (message) => {
 
 function formatMultiBuyMessage(message) {
     let formatted = message;
-    // Exemplo: aplicar formatação na primeira linha: adicionar bold na bannière
-    formatted = formatted.replace(/(‼️\s*🟢\s*MULTI BUY)\s*(⬜️)/i, "$1 **$2**");
-
-    // Formatar wallet count: deixa em negrito o trecho que contenha "wallets"
-    formatted = formatted.replace(/(\d+\s*wallets)/i, "**$1**");
-    // Formatar total: deixa em negrito o valor SOL
+    
+    // Format the MULTI BUY header
+    formatted = formatted.replace(/(‼️\s*🟢\s*MULTI BUY)\s*(\w+)/i, "$1 **$2**");
+    
+    // Format wallet count with bold
+    formatted = formatted.replace(/(\d+\s*wallets)\s+bought/i, "**$1** bought");
+    
+    // Format total SOL amount with bold
     formatted = formatted.replace(/Total:\s*([0-9\.]+\s*SOL)/i, "Total: **$1**");
+    
+    // Format wallet names and transaction info
+    formatted = formatted.replace(/🔹|🔺|🔸\s*([\w\s\.]+)\s*\((\w+\s*\w*)\s*tx\)/g, function(match, walletName, txTime) {
+        return match.charAt(0) + "**" + (walletName ? walletName.trim() : 'Unknown') + "** (" + (txTime ? txTime.trim() : 'Unknown') + " tx)";
+    });
 
-    // Para cada bloco iniciado com "🔹", coloca o número em negrito
-    formatted = formatted.replace(/(🔹)\s*(\d+)/g, "🔹**$2**");
-    // Formata linhas que começam com "├" para deixar o conteúdo em negrito
-    formatted = formatted.replace(/(├)([^└\n]+)/g, "├**$2**");
-    // Você pode adicionar outros replaces conforme o padrão desejado.
-    // Por exemplo, formatar links e outros elementos:
-    // Converter "DS" para link (exemplo simples):
-    formatted = formatted.replace(/DS\s*\:\s*([^\s]+)/, "DS: [$1](https://dexscreener.com/solana/$1)");
-    // Ajuste de acordo com as regras que você precisar.
-
+    
+    // Format SOL amounts and market cap in transaction lines
+    formatted = formatted.replace(/├([\d\.]+\s*SOL\s*\|\s*MC\s*\$[\d\.]+[KMB])/g, "├**$1**");
+    
+    // Format token name references after links
+    formatted = formatted.replace(/🔗\s*#(\w+)/g, "🔗 **#$1**");
+    
+    // Format market cap values
+    formatted = formatted.replace(/MC:\s*(\$[\d\.]+[KMB])/g, "**MC**: $1");
+    
+    // Format "Seen" time references
+    formatted = formatted.replace(/Seen:\s*([\w\s\.]+):/g, "**Seen**: $1:");
+    
+    // Format links to DEX tools
+    formatted = formatted.replace(/DS:/g, "[DS]:");
+    formatted = formatted.replace(/GMGN:/g, "[GMGN]:");
+    formatted = formatted.replace(/AXI(?:OM)?:/g, "[AXI]:");
+    
+    // Preserve token addresses wrapped in backticks
+    formatted = formatted.replace(/`([A-Za-z0-9]+)`/g, "`$1`");
+    
+    // Format token trading platform links
+    const platforms = ['BullX NEO', 'GMGN', 'AXIOM', 'Trojan', 'Photon', 'GMGN.ai', 'APEPRO', 'Bloom', 'Nova', 'RAY'];
+    platforms.forEach(platform => {
+        const regex = new RegExp(`(${platform})`, 'g');
+        formatted = formatted.replace(regex, "**$1**");
+    });
+    
     return formatted;
 }
 
-export { formattedMessage, formatMultiBuyMessage };
+/**
+ * Extracts structured data from a Multi Buy message for database storage
+ * @param {string} message - The raw message content
+ * @returns {Object} - Structured data extracted from the message
+ */
+function extractMultiBuyData(message) {
+    const data = {
+        messageType: 'MULTI_BUY',
+        tokenSymbol: null,
+        totalSol: null,
+        walletsCount: null,
+        timeframe: null,
+        transactions: [],
+        tokenId: null,
+        marketCap: null,
+        links: {}
+    };
+    
+    // Extract token symbol
+    const symbolMatch = message.match(/MULTI BUY\s+(\w+)/i);
+    if (symbolMatch) {
+        data.tokenSymbol = symbolMatch[1];
+    } else {
+        // Try alternative pattern like "#SYMBOL"
+        const altSymbolMatch = message.match(/#(\w+)/i);
+        if (altSymbolMatch) {
+            data.tokenSymbol = altSymbolMatch[1];
+        }
+    }
+    
+    // Extract wallets count and timeframe
+    const walletsMatch = message.match(/(\d+)\s+wallets\s+bought[^!]*?(\d+(?:\.\d+)?\s+\w+)!/i);
+    if (walletsMatch) {
+        data.walletsCount = parseInt(walletsMatch[1], 10);
+        data.timeframe = walletsMatch[2];
+    }
+    
+    // Extract total SOL
+    const totalSolMatch = message.match(/Total:\s*([\d\.]+)\s*SOL/i);
+    if (totalSolMatch) {
+        data.totalSol = parseFloat(totalSolMatch[1]);
+    }
+    
+    // Extract market cap
+    const mcMatch = message.match(/MC:\s*\$([\d\.]+[KMB])/i);
+    if (mcMatch) {
+        data.marketCap = mcMatch[1];
+    }
+    
+    // Extract token ID (usually a long alphanumeric string)
+    const tokenIdMatch = message.match(/`([A-Za-z0-9]{30,})`/) || 
+                        message.match(/https:\/\/dexscreener\.com\/solana\/([A-Za-z0-9]{30,})/) ||
+                        message.match(/https:\/\/axiom\.trade\/t\/([A-Za-z0-9]{30,})/);
+    
+    if (tokenIdMatch) {
+        data.tokenId = tokenIdMatch[1];
+    }
+    
+    // Extract transactions
+    const walletPattern = /(?:🔹|🔺)\s*([\w\s\.]+)\s*\((\w+\s*\w*)\s*tx\)\s*├([\d\.]+)\s+SOL\s*\|\s*MC\s*\$([\d\.]+[KMB])(?:.*?)└Total buy:\s*([\d\.]+)\s+SOL\s*\|\s*✊(\d+)%/g;
+    
+    let walletMatch;
+    while ((walletMatch = walletPattern.exec(message)) !== null) {
+        data.transactions.push({
+            walletName: walletMatch[1].trim(),
+            transactionTime: walletMatch[2].trim(),
+            amount: parseFloat(walletMatch[3]),
+            marketCap: walletMatch[4],
+            totalBuy: parseFloat(walletMatch[5]),
+            holdingPercentage: parseInt(walletMatch[6], 10)
+        });
+    }
+    
+    // Extract links
+    const linkMatches = {
+        dexScreener: message.match(/https:\/\/dexscreener\.com\/solana\/([^\s><\)]+)/),
+        gmgn: message.match(/https:\/\/gmgn\.ai\/sol\/token\/([^\s><\)]+)/),
+        axiom: message.match(/https:\/\/axiom\.trade\/t\/([^\s><\)]+)/),
+        bullx: message.match(/https:\/\/neo\.bullx\.io\/terminal\?[^\s><\)]+/),
+        photon: message.match(/https:\/\/photon-sol\.tinyastro\.io\/[^\s><\)]+/)
+    };
+    
+    Object.entries(linkMatches).forEach(([key, match]) => {
+        if (match) {
+            data.links[key] = match[0];
+        }
+    });
+    
+    return data;
+}
+
+export { formattedMessage, formatMultiBuyMessage, extractMultiBuyData };
