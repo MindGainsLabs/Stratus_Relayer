@@ -7,14 +7,19 @@
  * @param {string} content - Message content text
  * @returns {Object} Structured token data
  */
-export const parseMultiBuyMessage = (content) => {
+import { fetchTokenPrice } from '../services/priceQuoteService.js'; // usado apenas em parseTokenMessage para persistir primeira cotação
+import Message from '../models/Message.js';
+
+export const parseMultiBuyMessage = async (content) => {
     if (!content) return null;
 
     const result = {
         messageType: 'MULTI_BUY',
         token: {
             symbol: null,
-            id: null,
+            id: null, // mint address (SPL token)
+            priceTokenCall: null, // preço em unidade nativa (ex: SOL) no momento do parsing
+            priceUSD: null, // preço USD (se ENABLE_PRICE_FETCH=true)
             marketCap: null
         },
         meta: {
@@ -132,6 +137,8 @@ export const parseMultiBuyMessage = (content) => {
         }
     }
 
+    // Não buscamos mais preço aqui; será feito uma única vez em parseTokenMessage para a primeira call.
+
     return result;
 };
 
@@ -197,7 +204,7 @@ export const parseRiskReport = (content) => {
  * @param {Object} message - Discord message object with content
  * @returns {Object} Complete structured data
  */
-export const parseTokenMessage = (message) => {
+export const parseTokenMessage = async (message) => {
     if (!message || (!message.description && !message.content)) {
         return null;
     }
@@ -210,8 +217,8 @@ export const parseTokenMessage = (message) => {
         return null;
     }
 
-    // Parse the MULTI BUY data
-    const tokenData = parseMultiBuyMessage(content);
+    // Parse the MULTI BUY data (sem preço ainda)
+    const tokenData = await parseMultiBuyMessage(content);
     if (!tokenData) return null;
     
     // Add author/username information
@@ -227,5 +234,60 @@ export const parseTokenMessage = (message) => {
     if (message.id) tokenData.messageId = message.id;
     if (message.createdAt) tokenData.timestamp = message.createdAt;
     
+    // Persistência do preço inicial: se a mensagem ainda não tiver initialPrice persistido e for a primeira vez para o token
+    if (process.env.ENABLE_PRICE_FETCH === 'true' && tokenData.token.id) {
+        try {
+            // Garantir tokenId salvo na mensagem
+            if (!message.tokenId) {
+                await Message.updateOne({ id: message.id }, { $set: { tokenId: tokenData.token.id } });
+                message.tokenId = tokenData.token.id;
+            }
+
+            // Verificar se já existe alguma mensagem anterior com initialPrice para este token
+            const existingWithPrice = await Message.findOne({ tokenId: tokenData.token.id, initialPriceNative: { $exists: true } }).sort({ createdAt: 1 }).lean();
+            if (existingWithPrice) {
+                // Já existe preço inicial; replicar nos campos de saída
+                tokenData.token.priceTokenCall = existingWithPrice.initialPriceNative || null;
+                tokenData.token.priceUSD = existingWithPrice.initialPriceUSD || null;
+                tokenData.token.initialBaseline = {
+                    priceNative: existingWithPrice.initialPriceNative || null,
+                    priceUSD: existingWithPrice.initialPriceUSD || null,
+                    capturedAt: existingWithPrice.createdAt,
+                    messageId: existingWithPrice.id
+                };
+            } else {
+                // Primeira vez: buscar e persistir
+                const quote = await fetchTokenPrice(tokenData.token.id);
+                if (quote) {
+                    tokenData.token.priceTokenCall = quote.priceNative || null;
+                    tokenData.token.priceUSD = quote.priceUsd || null;
+                    await Message.updateOne(
+                        { id: message.id },
+                        { $set: { initialPriceNative: tokenData.token.priceTokenCall, initialPriceUSD: tokenData.token.priceUSD } }
+                    );
+                    // baseline recém capturada
+                    tokenData.token.initialBaseline = {
+                        priceNative: tokenData.token.priceTokenCall,
+                        priceUSD: tokenData.token.priceUSD,
+                        capturedAt: message.createdAt || new Date(),
+                        messageId: message.id
+                    };
+                }
+            }
+        } catch (e) {
+            // silencioso
+        }
+    }
+
+    // Caso preço desabilitado, ainda retornamos o contêiner (nulo) para facilitar frontend
+    if (!tokenData.token.initialBaseline) {
+        tokenData.token.initialBaseline = {
+            priceNative: tokenData.token.priceTokenCall || null,
+            priceUSD: tokenData.token.priceUSD || null,
+            capturedAt: message.createdAt || null,
+            messageId: message.id || null
+        };
+    }
+
     return tokenData;
 };

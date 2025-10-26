@@ -1,7 +1,3 @@
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@5/dist/runtime.js";
-import define from "https://api.observablehq.com/@d3/world-tour.js?v=4";
-new Runtime().module(define, Inspector.into("#observablehq-77997230"));
-
 document.getElementById('messageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -13,7 +9,7 @@ document.getElementById('messageForm').addEventListener('submit', async (e) => {
     resultDiv.innerHTML = 'Processing...';
 
     try {
-        const response = await fetch("/api/retrieve-messages", {
+        const response = await fetch("/relayer/api/retrieve-messages", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -37,7 +33,7 @@ document.getElementById('messageForm').addEventListener('submit', async (e) => {
 
             resultDiv.innerHTML = `
                 <p>Messages collected successfully!</p>
-                <a href="/api/download-messages" download="messages_full.json">Download all Messages(.txt)</a>
+                <a href="/relayer/api/download-messages" download="messages_full.json">Download all Messages(.txt)</a>
             `;
             resultDiv.appendChild(downloadLink);
         } else {

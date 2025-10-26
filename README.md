@@ -373,6 +373,7 @@ The Stratus Relayer Application is developed to extract messages from Discord ch
 - **Token Analysis**: Fetches token reports using the Rugcheck API.
 - **Notifications**: Sends notifications to Telegram with extracted and analyzed messages.
 - **Storage**: Stores extracted messages in MongoDB.
+- **Realtime & WebSockets**: Socket.IO endpoints with optional secure WSS (see `docs/WSS_SETUP.md`).
 
 ---
 

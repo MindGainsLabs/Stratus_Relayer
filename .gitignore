@@ -2,3 +2,16 @@ node_modules
 coverage
 package-lock.json
 .env
+
+# AsyncAPI generated documentation (regenerated automatically)
+docs/websocket-api/
+docs/websocket-api-md/
+
+# Keep AsyncAPI source files
+!asyncapi.yaml
+!docs/ASYNCAPI_GUIDE.md
+!docs/README_WEBSOCKETS.md
+!docs/WEBSOCKET_DOCUMENTATION_SUMMARY.md
+
+# Apple resource forks
+._*

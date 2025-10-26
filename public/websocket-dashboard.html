@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stratus Relayer - Crypto Tracking WebSocket Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/websocket-dashboard.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-satellite-dish"></i>
+                <h1>Stratus Relayer</h1>
+            </div>
+            <div class="connection-status">
+                <div class="status-indicator" id="connectionStatus">
+                    <i class="fas fa-circle"></i>
+                    <span>Disconnected</span>
+                </div>
+                <button id="authBtn" class="auth-btn" disabled>
+                    <i class="fas fa-key"></i>
+                    Authenticate
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Authentication Modal -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-shield-alt"></i> Authentication Required</h2>
+                    <button class="close-btn" id="closeAuthModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="authForm">
+                        <div class="input-group">
+                            <label for="jwtToken">
+                                <i class="fas fa-key"></i>
+                                JWT Token
+                            </label>
+                            <input type="password" id="jwtToken" placeholder="Enter your JWT token" required>
+                            <small>Get your token from the authentication endpoint</small>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Authenticate
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <section class="control-panel">
+            <div class="panel-header">
+                <h2><i class="fas fa-sliders-h"></i> Control Panel</h2>
+            </div>
+            <div class="controls">
+                <div class="control-group">
+                    <label>
+                        <i class="fas fa-clock"></i>
+                        Time Range (hours)
+                    </label>
+                    <select id="timeRange">
+                        <option value="1">1 hour</option>
+                        <option value="6">6 hours</option>
+                        <option value="12">12 hours</option>
+                        <option value="24" selected>24 hours</option>
+                        <option value="48">48 hours</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>
+                        <i class="fas fa-coins"></i>
+                        Filter by Token
+                    </label>
+                    <input type="text" id="tokenFilter" placeholder="e.g., SOL, BONK">
+                </div>
+                <div class="control-group">
+                    <label>
+                        <i class="fas fa-wallet"></i>
+                        Filter by Wallet
+                    </label>
+                    <input type="text" id="walletFilter" placeholder="Enter wallet name">
+                </div>
+                <div class="control-group">
+                    <label>
+                        <i class="fas fa-search"></i>
+                        Search Tokens
+                    </label>
+                    <div class="search-box">
+                        <input type="text" id="searchQuery" placeholder="Search by symbol or ID">
+                        <button id="searchBtn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button id="subscribeBtn" class="action-btn primary" disabled>
+                    <i class="fas fa-play"></i>
+                    Subscribe to Updates
+                </button>
+                <button id="refreshBtn" class="action-btn secondary" disabled>
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Data
+                </button>
+                <button id="topTokensBtn" class="action-btn tertiary" disabled>
+                    <i class="fas fa-trophy"></i>
+                    Get Top Tokens
+                </button>
+            </div>
+        </section>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Statistics Cards -->
+            <section class="stats-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-bar"></i> Live Statistics</h2>
+                    <span class="last-update" id="statsTimestamp">Never updated</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalTokens">0</div>
+                            <div class="stat-label">Total Tokens</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalWallets">0</div>
+                            <div class="stat-label">Active Wallets</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalSol">0</div>
+                            <div class="stat-label">Total SOL Volume</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalMessages">0</div>
+                            <div class="stat-label">Messages Tracked</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top Tokens -->
+            <section class="top-tokens-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-trophy"></i> Top Tokens</h2>
+                    <select id="topTokensMetric">
+                        <option value="totalSol">By SOL Volume</option>
+                        <option value="mentions">By Mentions</option>
+                        <option value="uniqueWallets">By Unique Wallets</option>
+                        <option value="riskScore">By Risk Score</option>
+                    </select>
+                </div>
+                <div class="tokens-list" id="topTokensList">
+                    <div class="loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Waiting for data...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Trades -->
+            <section class="trades-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-exchange-alt"></i> Recent Trades</h2>
+                    <div class="trade-filters">
+                        <button class="filter-btn active" data-type="all">All</button>
+                        <button class="filter-btn" data-type="BUY">Buy</button>
+                        <button class="filter-btn" data-type="SELL">Sell</button>
+                        <button class="filter-btn" data-type="MULTI_BUY">Multi Buy</button>
+                    </div>
+                </div>
+                <div class="trades-list" id="tradesList">
+                    <div class="loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Waiting for trades...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search Results -->
+            <section class="search-section" id="searchSection" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-search"></i> Search Results</h2>
+                    <button id="clearSearchBtn" class="clear-btn">
+                        <i class="fas fa-times"></i>
+                        Clear
+                    </button>
+                </div>
+                <div class="search-results" id="searchResults">
+                </div>
+            </section>
+        </div>
+
+        <!-- Activity Log -->
+        <section class="activity-log">
+            <div class="section-header">
+                <h2><i class="fas fa-list"></i> Activity Log</h2>
+                <button id="clearLogBtn" class="clear-btn">
+                    <i class="fas fa-trash"></i>
+                    Clear Log
+                </button>
+            </div>
+            <div class="log-content" id="activityLog">
+                <div class="log-entry info">
+                    <span class="timestamp">[--:--:--]</span>
+                    <i class="fas fa-info-circle"></i>
+                    <span>Dashboard initialized. Connect to start receiving data.</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Stratus Relayer. Real-time crypto tracking via WebSocket.</p>
+            <div class="footer-links">
+                <a href="#" id="docsLink"><i class="fas fa-book"></i> Documentation</a>
+                <a href="#" id="apiLink"><i class="fas fa-code"></i> API Reference</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/websocket-client.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

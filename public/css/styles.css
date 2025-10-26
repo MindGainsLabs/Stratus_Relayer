@@ -126,7 +126,10 @@ button:hover {
     }
 }
 
-.sse-link {
+.sse-link,
+.websocket-link,
+.docs-link,
+.async-docs-link {
     display: block;
     text-align: center;
     text-decoration: none;
@@ -146,7 +149,26 @@ button:hover {
     justify-content: center;
     gap: 12px;
 }
-.sse-link:hover {
+
+.websocket-link {
+    background: linear-gradient(135deg, #3b82f6, #10b981);
+    border: 1px solid #3b82f6;
+}
+
+.docs-link {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    border: 1px solid #f59e0b;
+}
+
+.async-docs-link {
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    border: 1px solid #8b5cf6;
+}
+
+.sse-link:hover,
+.websocket-link:hover,
+.docs-link:hover,
+.async-docs-link:hover {
     opacity: 0.6;
     text-decoration: none;
 }

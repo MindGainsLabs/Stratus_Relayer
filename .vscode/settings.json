@@ -1,0 +1,12 @@
+{
+  "settings": {
+      "files.exclude": {
+  "**/._*": true
+},
+"search.exclude": {
+  "**/._*": true
+},
+  "chat.mcp.autostart": "off",
+  "chat.mcp.serverSampling": {},
+  }
+}

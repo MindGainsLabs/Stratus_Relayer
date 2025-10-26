@@ -1,0 +1,669 @@
+{
+  "info": {
+    "name": "Stratus Relayer WebSocket Collection",
+    "description": "Collection completa de WebSockets do Stratus_Relayer v1.0.0 - Comunicação em tempo real para análise de criptomoedas e tracking de tokens com Socket.IO",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔌 Conexão WebSocket",
+      "description": "Configuração e teste de conexão WebSocket",
+      "item": [
+        {
+          "name": "Conexão Básica",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{wsBaseUrl}}",
+              "host": ["{{wsBaseUrl}}"]
+            },
+            "description": "**WebSocket Connection Endpoint**\n\n**URL:** `{{wsBaseUrl}}`\n**Protocolo:** Socket.IO\n\n**Como conectar:**\n```javascript\nconst io = require('socket.io-client');\nconst socket = io('{{wsBaseUrl}}');\n\nsocket.on('connect', () => {\n  console.log('Connected:', socket.id);\n});\n```"
+          },
+          "response": [
+            {
+              "name": "Conexão Estabelecida",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{wsBaseUrl}}",
+                  "host": ["{{wsBaseUrl}}"]
+                }
+              },
+              "status": "Switching Protocols",
+              "code": 101,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Upgrade",
+                  "value": "websocket"
+                },
+                {
+                  "key": "Connection",
+                  "value": "Upgrade"
+                }
+              ],
+              "cookie": [],
+              "body": "WebSocket connection established"
+            }
+          ]
+        },
+        {
+          "name": "Teste de Ping/Pong",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/test/ping",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "test", "ping"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"ping\",\n  \"data\": {\n    \"timestamp\": \"{{$timestamp}}\"\n  }\n}"
+            },
+            "description": "**WebSocket Event: ping**\n\nTesta conectividade WebSocket via evento ping/pong.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('ping');\n\nsocket.on('pong', (data) => {\n  console.log('Pong received:', data);\n});\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔐 Autenticação WebSocket",
+      "description": "Autenticação e autorização via WebSocket",
+      "item": [
+        {
+          "name": "Autenticar",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/authenticate",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "authenticate"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"authenticate\",\n  \"data\": {\n    \"token\": \"{{apiToken}}\"\n  }\n}"
+            },
+            "description": "**WebSocket Event: authenticate**\n\nAutentica o cliente WebSocket com token de API.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('authenticate', {\n  token: 'your-api-token'\n});\n\n// Success response\nsocket.on('authenticated', (data) => {\n  console.log('Authenticated:', data);\n});\n\n// Error response\nsocket.on('authentication-failed', (error) => {\n  console.error('Auth failed:', error);\n});\n```\n\n**Responses:**\n- `authenticated`: Sucesso na autenticação\n- `authentication-failed`: Falha na autenticação\n- `authentication-required`: Token necessário"
+          },
+          "response": [
+            {
+              "name": "Autenticação Bem-sucedida",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event\": \"authenticate\",\n  \"data\": {\n    \"token\": \"valid-token\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/websocket/authenticate",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["websocket", "authenticate"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"event\": \"authenticated\",\n  \"data\": {\n    \"message\": \"Successfully authenticated\",\n    \"user\": {\n      \"id\": \"user123\",\n      \"subscriptionType\": \"unlimited\",\n      \"isActive\": true\n    },\n    \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "Falha na Autenticação",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event\": \"authenticate\",\n  \"data\": {\n    \"token\": \"invalid-token\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/websocket/authenticate",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["websocket", "authenticate"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"event\": \"authentication-failed\",\n  \"data\": {\n    \"message\": \"Invalid token\",\n    \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📊 Crypto Tracking WebSocket",
+      "description": "Eventos WebSocket para rastreamento de criptomoedas em tempo real",
+      "item": [
+        {
+          "name": "Inscrever-se no Crypto Tracking",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/subscribe-crypto-tracking",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "subscribe-crypto-tracking"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"subscribe-crypto-tracking\",\n  \"data\": {\n    \"hours\": 24,\n    \"tokenSymbol\": \"SOL\",\n    \"walletName\": \"whale_wallet\",\n    \"channelId\": \"{{channelId}}\"\n  }\n}"
+            },
+            "description": "**WebSocket Event: subscribe-crypto-tracking**\n\nInscreve-se para receber atualizações em tempo real de rastreamento de criptomoedas.\n\n**Socket.IO Code:**\n```javascript\n// Subscribe\nsocket.emit('subscribe-crypto-tracking', {\n  hours: 24,\n  tokenSymbol: 'SOL', // optional\n  walletName: 'whale_wallet', // optional\n  channelId: 'discord-channel-id' // optional\n});\n\n// Confirmation\nsocket.on('crypto-subscription-confirmed', (data) => {\n  console.log('Subscribed:', data);\n});\n\n// Receive real-time data\nsocket.on('structured-crypto-data', (data) => {\n  console.log('New crypto data:', data);\n});\n```\n\n**Responses:**\n- `crypto-subscription-confirmed`: Confirmação da inscrição\n- `structured-crypto-data`: Dados estruturados em tempo real\n- `token-stats`: Estatísticas de tokens\n- `top-tokens`: Top tokens por métrica"
+          },
+          "response": [
+            {
+              "name": "Inscrição Confirmada",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event\": \"subscribe-crypto-tracking\",\n  \"data\": {\n    \"hours\": 24\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/websocket/subscribe-crypto-tracking",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["websocket", "subscribe-crypto-tracking"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"event\": \"crypto-subscription-confirmed\",\n  \"data\": {\n    \"message\": \"Successfully subscribed to crypto tracking updates\",\n    \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cancelar Inscrição Crypto Tracking",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/unsubscribe-crypto-tracking",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "unsubscribe-crypto-tracking"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"unsubscribe-crypto-tracking\",\n  \"data\": {}\n}"
+            },
+            "description": "**WebSocket Event: unsubscribe-crypto-tracking**\n\nCancela a inscrição de atualizações de crypto tracking.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('unsubscribe-crypto-tracking');\n\nsocket.on('crypto-subscription-cancelled', (data) => {\n  console.log('Unsubscribed:', data);\n});\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Solicitar Dados Estruturados",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/request-structured-crypto-data",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "request-structured-crypto-data"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"request-structured-crypto-data\",\n  \"data\": {\n    \"hours\": 24,\n    \"tokenSymbol\": \"SOL\",\n    \"walletName\": \"whale_wallet\",\n    \"channelId\": \"{{channelId}}\"\n  }\n}"
+            },
+            "description": "**WebSocket Event: request-structured-crypto-data**\n\nSolicita dados estruturados de crypto tracking sob demanda.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('request-structured-crypto-data', {\n  hours: 24,\n  tokenSymbol: 'SOL',\n  walletName: 'whale_wallet'\n});\n\n// Response\nsocket.on('structured-crypto-data', (data) => {\n  console.log('Structured data:', data);\n});\n\n// Error\nsocket.on('structured-crypto-data-error', (error) => {\n  console.error('Error:', error);\n});\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Solicitar Estatísticas de Tokens",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/request-token-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "request-token-stats"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"request-token-stats\",\n  \"data\": {\n    \"hours\": 24\n  }\n}"
+            },
+            "description": "**WebSocket Event: request-token-stats**\n\nSolicita estatísticas de tokens sob demanda.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('request-token-stats', {\n  hours: 24\n});\n\n// Response\nsocket.on('token-stats', (data) => {\n  console.log('Token stats:', data);\n});\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Tokens",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/search-tokens",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "search-tokens"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"search-tokens\",\n  \"data\": {\n    \"query\": \"SOL\",\n    \"hours\": 24\n  }\n}"
+            },
+            "description": "**WebSocket Event: search-tokens**\n\nBusca tokens por símbolo ou ID via WebSocket.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('search-tokens', {\n  query: 'SOL',\n  hours: 24\n});\n\n// Response\nsocket.on('token-search-results', (data) => {\n  console.log('Search results:', data);\n});\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Solicitar Top Tokens",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/request-top-tokens",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "request-top-tokens"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"request-top-tokens\",\n  \"data\": {\n    \"metric\": \"totalSol\",\n    \"hours\": 24,\n    \"limit\": 10\n  }\n}"
+            },
+            "description": "**WebSocket Event: request-top-tokens**\n\nSolicita os principais tokens por métrica específica.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('request-top-tokens', {\n  metric: 'totalSol', // totalSol, mentions, uniqueWallets, riskScore\n  hours: 24,\n  limit: 10\n});\n\n// Response\nsocket.on('top-tokens', (data) => {\n  console.log('Top tokens:', data);\n});\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📱 Mensagens em Tempo Real",
+      "description": "Eventos WebSocket para receber mensagens do Discord em tempo real",
+      "item": [
+        {
+          "name": "Inscrever-se em Mensagens Ao Vivo",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/subscribe-live-messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "subscribe-live-messages"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"subscribe-live-messages\",\n  \"data\": {}\n}"
+            },
+            "description": "**WebSocket Event: subscribe-live-messages**\n\nInscreve-se para receber novas mensagens do Discord em tempo real.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('subscribe-live-messages');\n\n// Confirmation\nsocket.on('live-messages-subscription-confirmed', (data) => {\n  console.log('Subscribed to live messages:', data);\n});\n\n// Receive new messages\nsocket.on('new-discord-message', (message) => {\n  console.log('New message:', message);\n});\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelar Inscrição de Mensagens",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/unsubscribe-live-messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "unsubscribe-live-messages"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"unsubscribe-live-messages\",\n  \"data\": {}\n}"
+            },
+            "description": "**WebSocket Event: unsubscribe-live-messages**\n\nCancela inscrição de mensagens ao vivo.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('unsubscribe-live-messages');\n\nsocket.on('live-messages-subscription-cancelled', (data) => {\n  console.log('Unsubscribed from live messages:', data);\n});\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "⚠️ Análise de Risco",
+      "description": "Eventos WebSocket para atualizações de análise de risco de tokens",
+      "item": [
+        {
+          "name": "Inscrever-se em Atualizações de Risco",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/subscribe-risk-updates",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "subscribe-risk-updates"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"subscribe-risk-updates\",\n  \"data\": {}\n}"
+            },
+            "description": "**WebSocket Event: subscribe-risk-updates**\n\nInscreve-se para receber atualizações de análise de risco de tokens.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('subscribe-risk-updates');\n\n// Confirmation\nsocket.on('risk-updates-subscription-confirmed', (data) => {\n  console.log('Subscribed to risk updates:', data);\n});\n\n// Receive risk updates\nsocket.on('token-risk-update', (riskData) => {\n  console.log('Risk update:', riskData);\n});\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔍 Consultas Personalizadas",
+      "description": "Eventos WebSocket para consultas personalizadas e filtros avançados",
+      "item": [
+        {
+          "name": "Inscrever-se com Filtros",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/subscribe-filtered-tracking",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "subscribe-filtered-tracking"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"subscribe-filtered-tracking\",\n  \"data\": {\n    \"hours\": 24,\n    \"tokenSymbol\": \"SOL\",\n    \"walletName\": \"whale_wallet\",\n    \"minSolAmount\": 100,\n    \"maxRiskScore\": 50,\n    \"channelIds\": [\"{{channelId}}\"]\n  }\n}"
+            },
+            "description": "**WebSocket Event: subscribe-filtered-tracking**\n\nInscreve-se com filtros personalizados para receber apenas dados específicos.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('subscribe-filtered-tracking', {\n  hours: 24,\n  tokenSymbol: 'SOL',\n  walletName: 'whale_wallet',\n  minSolAmount: 100,\n  maxRiskScore: 50,\n  channelIds: ['channel-id']\n});\n\n// Confirmation\nsocket.on('filtered-subscription-confirmed', (data) => {\n  console.log('Filtered subscription:', data);\n});\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Consulta Personalizada",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/custom-crypto-query",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "custom-crypto-query"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"custom-crypto-query\",\n  \"data\": {\n    \"type\": \"structured-data\",\n    \"hours\": 6,\n    \"tokenSymbol\": \"BONK\",\n    \"walletName\": \"specific_wallet\",\n    \"minTransactionValue\": 50\n  }\n}"
+            },
+            "description": "**WebSocket Event: custom-crypto-query**\n\nExecuta consulta personalizada com parâmetros específicos.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('custom-crypto-query', {\n  type: 'structured-data', // structured-data, token-stats, search, top-tokens\n  hours: 6,\n  tokenSymbol: 'BONK',\n  walletName: 'specific_wallet',\n  minTransactionValue: 50\n});\n\n// Response depends on query type\nsocket.on('custom-query-response', (data) => {\n  console.log('Custom query result:', data);\n});\n\n// Error handling\nsocket.on('custom-query-error', (error) => {\n  console.error('Query error:', error);\n});\n```"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🛠️ Utilitários WebSocket",
+      "description": "Eventos utilitários e de diagnóstico",
+      "item": [
+        {
+          "name": "Ping",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/websocket/ping",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket", "ping"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"ping\",\n  \"data\": {\n    \"timestamp\": \"{{$timestamp}}\"\n  }\n}"
+            },
+            "description": "**WebSocket Event: ping**\n\nTesta conectividade WebSocket.\n\n**Socket.IO Code:**\n```javascript\nsocket.emit('ping');\n\nsocket.on('pong', (data) => {\n  console.log('Pong received:', data);\n});\n```"
+          },
+          "response": [
+            {
+              "name": "Pong Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"event\": \"ping\",\n  \"data\": {\n    \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/websocket/ping",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["websocket", "ping"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"event\": \"pong\",\n  \"data\": {\n    \"timestamp\": \"2024-01-15T10:30:00.000Z\",\n    \"clientId\": \"socket-id-123\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📋 Exemplos Completos",
+      "description": "Exemplos de implementação completa usando Socket.IO",
+      "item": [
+        {
+          "name": "Cliente JavaScript Básico",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/examples/websocket-client.js",
+              "host": ["{{baseUrl}}"],
+              "path": ["examples", "websocket-client.js"]
+            },
+            "description": "**Exemplo de Cliente WebSocket Completo**\n\n```javascript\nconst io = require('socket.io-client');\n\n// Connect to WebSocket\nconst socket = io('{{wsBaseUrl}}');\n\n// Connection events\nsocket.on('connect', () => {\n  console.log('🔌 Connected:', socket.id);\n  \n  // Authenticate\n  socket.emit('authenticate', {\n    token: 'your-api-token'\n  });\n});\n\n// Authentication\nsocket.on('authenticated', (data) => {\n  console.log('✅ Authenticated:', data);\n  \n  // Subscribe to crypto tracking\n  socket.emit('subscribe-crypto-tracking', {\n    hours: 24\n  });\n});\n\n// Real-time crypto data\nsocket.on('structured-crypto-data', (data) => {\n  console.log('📊 Crypto Data:', data);\n});\n\n// Token statistics\nsocket.on('token-stats', (stats) => {\n  console.log('📈 Token Stats:', stats);\n});\n\n// Error handling\nsocket.on('disconnect', () => {\n  console.log('❌ Disconnected');\n});\n\nsocket.on('authentication-failed', (error) => {\n  console.error('🚫 Auth Failed:', error);\n});\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Dashboard WebSocket",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/websocket-dashboard.html",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket-dashboard.html"]
+            },
+            "description": "**Dashboard Interativo WebSocket**\n\nAcesse o dashboard completo para testar todas as funcionalidades WebSocket em uma interface web interativa.\n\n**Recursos do Dashboard:**\n- ✅ Conexão/Desconexão WebSocket\n- ✅ Autenticação com token\n- ✅ Inscrição em eventos em tempo real\n- ✅ Visualização de dados estruturados\n- ✅ Gráficos e estatísticas\n- ✅ Logs de eventos em tempo real\n- ✅ Teste de todos os eventos disponíveis"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://srv800316.hstgr.cloud:8081",
+      "type": "string",
+      "description": "URL base da API HTTP"
+    },
+    {
+      "key": "wsBaseUrl",
+      "value": "ws://srv800316.hstgr.cloud:8081",
+      "type": "string",
+      "description": "URL base do WebSocket"
+    },
+    {
+      "key": "localBaseUrl",
+      "value": "http://localhost:8081",
+      "type": "string",
+      "description": "URL base local para desenvolvimento"
+    },
+    {
+      "key": "localWsBaseUrl",
+      "value": "ws://localhost:8081",
+      "type": "string",
+      "description": "URL WebSocket local para desenvolvimento"
+    },
+    {
+      "key": "apiToken",
+      "value": "your-api-token-here",
+      "type": "string",
+      "description": "Token de autenticação da API"
+    },
+    {
+      "key": "channelId",
+      "value": "123456789012345678",
+      "type": "string",
+      "description": "ID do canal do Discord"
+    },
+    {
+      "key": "channelId1",
+      "value": "123456789012345678",
+      "type": "string",
+      "description": "ID do primeiro canal do Discord"
+    },
+    {
+      "key": "channelId2",
+      "value": "123456789012345679",
+      "type": "string",
+      "description": "ID do segundo canal do Discord"
+    },
+    {
+      "key": "channelId3",
+      "value": "123456789012345680",
+      "type": "string",
+      "description": "ID do terceiro canal do Discord"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// WebSocket Collection Pre-request Script",
+          "console.log('🔌 WebSocket Event Test:', pm.info.requestName);",
+          "",
+          "// Validate WebSocket token",
+          "if (!pm.environment.get('apiToken') || pm.environment.get('apiToken') === 'your-api-token-here') {",
+          "    console.warn('⚠️  Configure seu token de API nas variáveis de ambiente');",
+          "}",
+          "",
+          "// Set timestamp for ping events",
+          "pm.globals.set('currentTimestamp', new Date().toISOString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// WebSocket Collection Test Script",
+          "",
+          "// Note: These are documentation requests, not actual WebSocket connections",
+          "console.log('📋 WebSocket Documentation Test');",
+          "",
+          "pm.test('WebSocket documentation accessible', function () {",
+          "    // This collection documents WebSocket events, not HTTP endpoints",
+          "    pm.expect(pm.info.requestName).to.include.oneOf([",
+          "        'WebSocket', 'websocket', 'Socket', 'Ping', 'Auth'",
+          "    ]);",
+          "});",
+          "",
+          "// Test if variables are properly set",
+          "pm.test('Environment variables configured', function () {",
+          "    pm.expect(pm.environment.get('wsBaseUrl')).to.not.be.empty;",
+          "    pm.expect(pm.environment.get('baseUrl')).to.not.be.empty;",
+          "});",
+          "",
+          "// Log WebSocket event details",
+          "if (pm.request.body && pm.request.body.raw) {",
+          "    try {",
+          "        const body = JSON.parse(pm.request.body.raw);",
+          "        if (body.event) {",
+          "            console.log('🎯 WebSocket Event:', body.event);",
+          "            console.log('📄 Event Data:', body.data);",
+          "        }",
+          "    } catch (e) {",
+          "        // Not JSON body",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ]
+}

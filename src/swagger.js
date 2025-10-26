@@ -14,9 +14,9 @@ const options = {
         },
         servers: [
             {
-                url: `http://localhost:${process.env.PORT || 3000}`,
-                description: 'Development server',
-            },
+                url: 'https://srv800316.hstgr.cloud/relayer',
+                description: 'Production server',
+            }
         ],
         components: {
             securitySchemes: {

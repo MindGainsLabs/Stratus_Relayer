@@ -1,41 +1,64 @@
 {
   "info": {
-    "name": "Stratus Relayer API Collection",
-    "description": "Collection de APIs do Stratus_Relayer para análise de tokens e extração de mensagens do Discord",
+    "name": "Stratus Relayer API Collection - Complete",
+    "description": "Collection completa da API do Stratus_Relayer v1.0.0 - Sistema de análise de tokens, extração de mensagens do Discord e formatação para Telegram com suporte a SSE",
+    "version": "1.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Autenticação",
-      "description": "Endpoints relacionados à autenticação",
+      "name": "🔐 Autenticação",
+      "description": "Endpoints relacionados à autenticação de tokens API",
       "item": [
         {
-          "name": "Login Solana",
+          "name": "Verificar Token",
           "request": {
-            "method": "POST",
+            "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/auth/login/solana",
+              "raw": "{{baseUrl}}/ping",
               "host": ["{{baseUrl}}"],
-              "path": ["auth", "login", "solana"]
+              "path": ["ping"]
             },
             "header": [
               {
-                "key": "Content-Type",
-                "value": "application/json"
+                "key": "Authorization",
+                "value": "{{apiToken}}",
+                "description": "Token de autenticação"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"publicKey\": \"string\",\n  \"signature\": \"string\",\n  \"message\": \"string\"\n}"
-            },
-            "description": "Autentica usuário usando Solana wallet"
-          }
+            "description": "Verifica se o token de API é válido e se o serviço está online"
+          },
+          "response": [
+            {
+              "name": "Token Válido",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "valid-token"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/ping",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["ping"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"message\": \"API is online\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}"
+            }
+          ]
         }
       ]
     },
     {
-      "name": "Mensagens",
-      "description": "Endpoints relacionados à extração e processamento de mensagens do Discord",
+      "name": "📨 Mensagens Discord",
+      "description": "Endpoints para extração, processamento e download de mensagens do Discord",
       "item": [
         {
           "name": "Extrair Mensagens",
@@ -53,15 +76,48 @@
               },
               {
                 "key": "Authorization",
-                "value": "{{token}}"
+                "value": "{{apiToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"channelId\": \"string\",\n  \"hours\": 24,\n  \"channelId1\": \"string\",\n  \"channelId2\": \"string\",\n  \"channelId3\": \"string\"\n}"
+              "raw": "{\n  \"channelId\": \"{{channelId}}\",\n  \"hours\": 24,\n  \"channelId1\": \"{{channelId1}}\",\n  \"channelId2\": \"{{channelId2}}\",\n  \"channelId3\": \"{{channelId3}}\"\n}"
             },
-            "description": "Extrai mensagens de canais do Discord"
-          }
+            "description": "Extrai mensagens de múltiplos canais do Discord e processa automaticamente tokens encontrados"
+          },
+          "response": [
+            {
+              "name": "Mensagens Extraídas",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "valid-token"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hours\": 24\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/retrieve-messages",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "retrieve-messages"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Mensagens coletadas com sucesso.\",\n  \"data\": [\n    {\n      \"id\": \"123456789\",\n      \"username\": \"trader_wallet\",\n      \"content\": \"BUY SOL transaction...\",\n      \"timestamp\": \"2024-01-15T10:25:00.000Z\",\n      \"tokenInfo\": {\n        \"symbol\": \"SOL\",\n        \"id\": \"9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E\",\n        \"marketCap\": \"$45.2M\"\n      }\n    }\n  ]\n}"
+            }
+          ]
         },
         {
           "name": "Baixar Mensagens",
@@ -75,84 +131,21 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "{{token}}"
+                "value": "{{apiToken}}"
               }
             ],
-            "description": "Baixa todas as mensagens coletadas"
-          }
-        },
-        {
-          "name": "Obter Mensagens",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/messages",
-              "host": ["{{baseUrl}}"],
-              "path": ["messages"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém mensagens armazenadas no sistema"
-          }
-        },
-        {
-          "name": "Estatísticas de Mensagens",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/message-stats",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "message-stats"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém estatísticas agregadas sobre mensagens armazenadas"
-          }
-        },
-        {
-          "name": "Buscar Tokens",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/search-tokens?query=SOL&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "search-tokens"],
-              "query": [
-                {
-                  "key": "query",
-                  "value": "SOL"
-                },
-                {
-                  "key": "limit",
-                  "value": "10"
-                }
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Busca tokens por símbolo ou ID"
-          }
+            "description": "Baixa todas as mensagens coletadas em formato texto estruturado"
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Crypto Tracking",
-      "description": "Endpoints para acompanhamento e análise de tokens",
+      "name": "🪙 Análise de Criptomoedas",
+      "description": "Endpoints para rastreamento, análise e estatísticas de tokens",
       "item": [
         {
-          "name": "Obter Dados Estruturados",
+          "name": "Dados Estruturados de Crypto",
           "request": {
             "method": "POST",
             "url": {
@@ -167,15 +160,48 @@
               },
               {
                 "key": "Authorization",
-                "value": "{{token}}"
+                "value": "{{apiToken}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"hours\": 24,\n  \"tokenSymbol\": \"string\",\n  \"walletName\": \"string\",\n  \"channelId\": \"string\"\n}"
+              "raw": "{\n  \"hours\": 24,\n  \"tokenSymbol\": \"SOL\",\n  \"walletName\": \"whale_wallet\",\n  \"channelId\": \"{{channelId}}\"\n}"
             },
-            "description": "Obtém dados estruturados de acompanhamento de criptomoedas"
-          }
+            "description": "Obtém dados estruturados de rastreamento de criptomoedas com análise de tokens e carteiras"
+          },
+          "response": [
+            {
+              "name": "Dados Crypto Estruturados",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "valid-token"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hours\": 24\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/crypto/structured-data",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "crypto", "structured-data"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Crypto tracking data retrieved successfully\",\n  \"data\": {\n    \"trackedMessages\": [\n      {\n        \"messageId\": \"123456789\",\n        \"timestamp\": \"2024-01-15T10:25:00.000Z\",\n        \"author\": \"trader_wallet\",\n        \"token\": {\n          \"symbol\": \"SOL\",\n          \"id\": \"9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E\",\n          \"marketCap\": \"$45.2M\"\n        },\n        \"meta\": {\n          \"totalSol\": 150.5,\n          \"walletsCount\": 3,\n          \"timeframe\": \"2 hours\"\n        },\n        \"riskReport\": {\n          \"score\": 25,\n          \"risks\": []\n        }\n      }\n    ],\n    \"stats\": {\n      \"tokens\": {\n        \"SOL\": {\n          \"totalSol\": 150.5,\n          \"mentions\": 5,\n          \"uniqueWallets\": 3,\n          \"riskScore\": 25\n        }\n      },\n      \"totalSol\": 150.5\n    }\n  }\n}"
+            }
+          ]
         },
         {
           "name": "Estatísticas de Tokens",
@@ -188,18 +214,20 @@
               "query": [
                 {
                   "key": "hours",
-                  "value": "24"
+                  "value": "24",
+                  "description": "Período em horas para análise"
                 }
               ]
             },
             "header": [
               {
                 "key": "Authorization",
-                "value": "{{token}}"
+                "value": "{{apiToken}}"
               }
             ],
-            "description": "Obtém estatísticas resumidas sobre tokens"
-          }
+            "description": "Obtém estatísticas resumidas sobre tokens processados"
+          },
+          "response": []
         },
         {
           "name": "Buscar Tokens",
@@ -212,22 +240,25 @@
               "query": [
                 {
                   "key": "query",
-                  "value": "SOL"
+                  "value": "SOL",
+                  "description": "Termo de busca (símbolo ou ID do token)"
                 },
                 {
                   "key": "hours",
-                  "value": "24"
+                  "value": "24",
+                  "description": "Período em horas para busca"
                 }
               ]
             },
             "header": [
               {
                 "key": "Authorization",
-                "value": "{{token}}"
+                "value": "{{apiToken}}"
               }
             ],
             "description": "Busca tokens por símbolo ou ID parcial"
-          }
+          },
+          "response": []
         },
         {
           "name": "Top Tokens",
@@ -240,392 +271,36 @@
               "query": [
                 {
                   "key": "metric",
-                  "value": "totalSol"
+                  "value": "totalSol",
+                  "description": "Métrica para classificação: totalSol, mentions, uniqueWallets, riskScore"
                 },
                 {
                   "key": "hours",
-                  "value": "24"
+                  "value": "24",
+                  "description": "Período em horas"
                 },
                 {
                   "key": "limit",
-                  "value": "10"
+                  "value": "10",
+                  "description": "Número de resultados"
                 }
               ]
             },
             "header": [
               {
                 "key": "Authorization",
-                "value": "{{token}}"
+                "value": "{{apiToken}}"
               }
             ],
             "description": "Obtém os principais tokens classificados pela métrica especificada"
-          }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Domínios",
-      "description": "Endpoints relacionados a domínios",
-      "item": [
-        {
-          "name": "Obter Domínios",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/domains",
-              "host": ["{{baseUrl}}"],
-              "path": ["domains"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém lista de domínios"
-          }
-        },
-        {
-          "name": "Baixar CSV de Domínios",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/domains/data.csv",
-              "host": ["{{baseUrl}}"],
-              "path": ["domains", "data.csv"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Baixa dados de domínios em formato CSV"
-          }
-        },
-        {
-          "name": "Buscar Domínio",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/domains/lookup/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["domains", "lookup", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "domainId"
-                }
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Busca informações de um domínio específico"
-          }
-        },
-        {
-          "name": "Registros de Domínio",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/domains/records/:id",
-              "host": ["{{baseUrl}}"],
-              "path": ["domains", "records", ":id"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "domainId"
-                }
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém registros de um domínio específico"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Leaderboard",
-      "description": "Endpoints relacionados ao leaderboard",
-      "item": [
-        {
-          "name": "Obter Leaderboard",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/leaderboard",
-              "host": ["{{baseUrl}}"],
-              "path": ["leaderboard"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém dados do leaderboard"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Sistema",
-      "description": "Endpoints para monitoramento do sistema",
-      "item": [
-        {
-          "name": "Status de Manutenção",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/maintenance",
-              "host": ["{{baseUrl}}"],
-              "path": ["maintenance"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Verifica se o sistema está em manutenção"
-          }
-        },
-        {
-          "name": "Ping",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/ping",
-              "host": ["{{baseUrl}}"],
-              "path": ["ping"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Verifica se a API está online"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Estatísticas",
-      "description": "Endpoints para estatísticas",
-      "item": [
-        {
-          "name": "Novos Tokens",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/stats/new_tokens",
-              "host": ["{{baseUrl}}"],
-              "path": ["stats", "new_tokens"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém lista de novos tokens"
-          }
-        },
-        {
-          "name": "Tokens Recentes",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/stats/recent",
-              "host": ["{{baseUrl}}"],
-              "path": ["stats", "recent"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém lista de tokens recentes"
-          }
-        },
-        {
-          "name": "Tokens em Tendência",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/stats/trending",
-              "host": ["{{baseUrl}}"],
-              "path": ["stats", "trending"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém lista de tokens em tendência"
-          }
-        },
-        {
-          "name": "Tokens Verificados",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/stats/verified",
-              "host": ["{{baseUrl}}"],
-              "path": ["stats", "verified"]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém lista de tokens verificados"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Tokens",
-      "description": "Endpoints específicos para tokens",
-      "item": [
-        {
-          "name": "Lockers de Token",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/tokens/:id/lockers",
-              "host": ["{{baseUrl}}"],
-              "path": ["tokens", ":id", "lockers"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "tokenId"
-                }
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém informações sobre lockers de um token específico"
-          }
-        },
-        {
-          "name": "Fluxo de Lockers de Token",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/tokens/:id/lockers/flux",
-              "host": ["{{baseUrl}}"],
-              "path": ["tokens", ":id", "lockers", "flux"],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "tokenId"
-                }
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém fluxo de lockers de um token específico"
-          }
-        },
-        {
-          "name": "Reportar Token",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/tokens/:mint/report",
-              "host": ["{{baseUrl}}"],
-              "path": ["tokens", ":mint", "report"],
-              "variable": [
-                {
-                  "key": "mint",
-                  "value": "tokenMint"
-                }
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Reporta um token"
-          }
-        },
-        {
-          "name": "Votar em Token",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/tokens/:mint/votes",
-              "host": ["{{baseUrl}}"],
-              "path": ["tokens", ":mint", "votes"],
-              "variable": [
-                {
-                  "key": "mint",
-                  "value": "tokenMint"
-                }
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Vota em um token"
-          }
-        },
-        {
-          "name": "Resumo de Relatório de Token",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/tokens/:mint/report/summary",
-              "host": ["{{baseUrl}}"],
-              "path": ["tokens", ":mint", "report", "summary"],
-              "variable": [
-                {
-                  "key": "mint",
-                  "value": "tokenMint"
-                }
-              ]
-            },
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "{{token}}"
-              }
-            ],
-            "description": "Obtém o resumo do relatório de um token"
-          }
-        }
-      ]
-    },
-    {
-      "name": "SSE (Server-Sent Events)",
-      "description": "Endpoints para eventos em tempo real",
+      "name": "📡 Server-Sent Events (SSE)",
+      "description": "Endpoint para atualizações em tempo real via SSE",
       "item": [
         {
           "name": "Stream SSE",
@@ -639,11 +314,196 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "{{token}}"
+                "value": "{{apiToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "no-cache"
               }
             ],
-            "description": "Conecta ao stream SSE para receber mensagens em tempo real"
-          }
+            "description": "Conecta ao stream SSE para receber mensagens processadas em tempo real"
+          },
+          "response": [
+            {
+              "name": "SSE Stream Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "valid-token"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "text/event-stream"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/sse/stream",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["sse", "stream"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/event-stream"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                }
+              ],
+              "cookie": [],
+              "body": "data: [{\"id\":\"123\",\"username\":\"trader\",\"content\":\"BUY SOL...\",\"timestamp\":\"2024-01-15T10:30:00.000Z\"}]\n\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📚 Documentação",
+      "description": "Endpoints para acessar documentação da API e WebSocket",
+      "item": [
+        {
+          "name": "Documentação WebSocket HTML",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/docs/websocket",
+              "host": ["{{baseUrl}}"],
+              "path": ["docs", "websocket"]
+            },
+            "description": "Visualiza documentação AsyncAPI dos WebSockets em formato HTML"
+          },
+          "response": []
+        },
+        {
+          "name": "AsyncAPI YAML",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/docs/websocket/yaml",
+              "host": ["{{baseUrl}}"],
+              "path": ["docs", "websocket", "yaml"]
+            },
+            "description": "Baixa especificação AsyncAPI em formato YAML para WebSockets"
+          },
+          "response": []
+        },
+        {
+          "name": "AsyncAPI Markdown",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/docs/websocket/markdown",
+              "host": ["{{baseUrl}}"],
+              "path": ["docs", "websocket", "markdown"]
+            },
+            "description": "Baixa documentação AsyncAPI em formato Markdown"
+          },
+          "response": []
+        },
+        {
+          "name": "Informações da Integração AsyncAPI",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/docs/websocket/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["docs", "websocket", "info"]
+            },
+            "description": "Obtém informações sobre integração AsyncAPI e ferramentas disponíveis"
+          },
+          "response": []
+        },
+        {
+          "name": "Swagger UI - API REST",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api-docs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api-docs"]
+            },
+            "description": "Acessa documentação interativa Swagger da API REST"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔧 Sistema & Monitoramento",
+      "description": "Endpoints para verificação de status e monitoramento do sistema",
+      "item": [
+        {
+          "name": "Status do Sistema",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/ping",
+              "host": ["{{baseUrl}}"],
+              "path": ["ping"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{apiToken}}"
+              }
+            ],
+            "description": "Verifica se a API está online e funcionando"
+          },
+          "response": []
+        },
+        {
+          "name": "Dashboard Principal",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Acessa o dashboard principal da aplicação"
+          },
+          "response": []
+        },
+        {
+          "name": "Dashboard WebSocket",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/websocket-dashboard.html",
+              "host": ["{{baseUrl}}"],
+              "path": ["websocket-dashboard.html"]
+            },
+            "description": "Acessa dashboard interativo para testar conexões WebSocket"
+          },
+          "response": []
+        },
+        {
+          "name": "Dashboard SSE",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/SSE.html",
+              "host": ["{{baseUrl}}"],
+              "path": ["SSE.html"]
+            },
+            "description": "Acessa dashboard para monitorar streams SSE em tempo real"
+          },
+          "response": []
         }
       ]
     }
@@ -651,15 +511,85 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:8081",
+      "value": "http://srv800316.hstgr.cloud:8081",
       "type": "string",
-      "description": "API Base URL"
+      "description": "URL base da API em produção"
     },
     {
-      "key": "token",
-      "value": "your-api-token",
+      "key": "localUrl",
+      "value": "http://localhost:8081",
       "type": "string",
-      "description": "API Token for authentication"
+      "description": "URL base da API local para desenvolvimento"
+    },
+    {
+      "key": "apiToken",
+      "value": "your-api-token-here",
+      "type": "string",
+      "description": "Token de autenticação da API"
+    },
+    {
+      "key": "channelId",
+      "value": "123456789012345678",
+      "type": "string",
+      "description": "ID do canal principal do Discord"
+    },
+    {
+      "key": "channelId1",
+      "value": "123456789012345678",
+      "type": "string",
+      "description": "ID do primeiro canal do Discord"
+    },
+    {
+      "key": "channelId2",
+      "value": "123456789012345679",
+      "type": "string",
+      "description": "ID do segundo canal do Discord"
+    },
+    {
+      "key": "channelId3",
+      "value": "123456789012345680",
+      "type": "string",
+      "description": "ID do terceiro canal do Discord"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Configurações automáticas para requests",
+          "if (!pm.environment.get('apiToken')) {",
+          "    console.log('⚠️  Configure seu token de API nas variáveis de ambiente');",
+          "}",
+          "",
+          "// Log da request",
+          "console.log('🚀 Executando:', pm.info.requestName);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Testes automáticos básicos",
+          "pm.test('Status code é sucessful', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+          "});",
+          "",
+          "pm.test('Response time é menor que 5000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// Para responses JSON",
+          "if (pm.response.headers.get('Content-Type')?.includes('application/json')) {",
+          "    pm.test('Response é JSON válido', function () {",
+          "        pm.response.to.be.json;",
+          "    });",
+          "}"
+        ]
+      }
     }
   ]
 }

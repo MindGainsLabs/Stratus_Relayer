@@ -69,7 +69,7 @@ router.post('/structured-data', authenticateToken, getStructuredCryptoData);
  *         name: hours
  *         schema:
  *           type: number
- *         description: Number of hours to look back (default: 24)
+ *         description: "Number of hours to look back (default: 24)"
  *     responses:
  *       200:
  *         description: Token statistics retrieved successfully
@@ -99,7 +99,7 @@ router.get('/token-stats', authenticateToken, getTokenStatistics);
  *         name: hours
  *         schema:
  *           type: number
- *         description: Number of hours to look back (default: 24)
+ *         description: "Number of hours to look back (default: 24)"
  *     responses:
  *       200:
  *         description: Search results retrieved successfully
@@ -126,17 +126,17 @@ router.get('/search', authenticateToken, searchTokens);
  *         schema:
  *           type: string
  *           enum: [totalSol, mentions, uniqueWallets, riskScore]
- *         description: Metric to sort by (default: totalSol)
+ *         description: "Metric to sort by (default: totalSol)"
  *       - in: query
  *         name: hours
  *         schema:
  *           type: number
- *         description: Number of hours to look back (default: 24)
+ *         description: "Number of hours to look back (default: 24)"
  *       - in: query
  *         name: limit
  *         schema:
  *           type: number
- *         description: Number of results to return (default: 10)
+ *         description: "Number of results to return (default: 10)"
  *     responses:
  *       200:
  *         description: Top tokens retrieved successfully

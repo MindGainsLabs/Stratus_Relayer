@@ -2,8 +2,10 @@ import axios from 'axios';
 import Message from '../models/Message.js';
 import { sendToTelegram, sendToTelegramClient } from './telegramService.js';
 import { formattedMessage } from '../utils/formatter.js';
+import { formatTelegramMessage, extractTokenInfo } from '../utils/telegramFormatter.js';
 import { configDotenv } from 'dotenv';
 import { getTokenReportSummary, loginToRugcheck } from './rugcheckService.js';
+import { processTokenCall } from './narrativeService.js';
 
 configDotenv();
 
@@ -55,7 +57,13 @@ const retrieveMessages = async (channelId, hours) => {
                     if (message.content) {
                         const content = message.content.replace(/</g, '').replace(/>/g, '');
                         const username = message.author.username || 'Unknown';
-                        sendToTelegramClient(`${username}: ${content}`);
+                        
+                        const formattedMsg = formatTelegramMessage({
+                            username,
+                            content
+                        });
+                        
+                        sendToTelegramClient(formattedMsg);
                     }
 
                     let responseMessage = '';
@@ -63,64 +71,108 @@ const retrieveMessages = async (channelId, hours) => {
                     // Enviar descrições dos embeds para o Telegram
                     message.embeds.forEach(async embed => {
                         if (embed.description || embed.content) {
-                            const updatedDescription = embed.description.replace(/</g, '').replace(/>/g, '') || embed.content.replace(/</g, '').replace(/>/g, '');
+                            const updatedDescription = embed.description?.replace(/</g, '').replace(/>/g, '') || embed.content?.replace(/</g, '').replace(/>/g, '');
                             const username = message.author.username || embed.author?.name || 'Unknown';
                             console.log(updatedDescription);
-                            const tokenIdMatch = updatedDescription.match(/`(\w+)` | [🤖 RayBot]/)?.[1] ||
-                            updatedDescription.match(/`(\w+)pump` | [🤖 RayBot]/)?.[1] ||
-                            updatedDescription.match(/https:\/\/gmgn\.ai\/sol\/token\/(\w+)/)?.[1] ||
-                            updatedDescription.match(/https:\/\/axiom\.trade\/t\/(\w+)/)?.[1] ||
-                            updatedDescription.match(/https:\/\/neo\.bullx\.io\/terminal\?chainId=\d+&address=(\w+)/)?.[1] ||
-                            updatedDescription.match(/https:\/\/t\.me\/ray_cyan_bot\?start=buy__(\w+)/)?.[1] ||
-                            updatedDescription.match(/https:\/\/photon-sol\.tinyastro\.io\/en\/lp\/(\w+)/)?.[1] ||
-                            updatedDescription.match(/https:\/\/gmgn\.ai\/sol\/token\/(\w+)/)?.[1] ||
-                            updatedDescription.match(/https:\/\/t\.me\/ape_pro_solana_bot\?start=ape_ray_(\w+)/)?.[1] ||
-                            updatedDescription.match(/https:\/\/t\.me\/BloomSolana_bot\?start=ref_RAYBOT_ca_(\w+)/)?.[1] ||
-                            updatedDescription.match(/https:\/\/t\.me\/TradeonNovaBot\?start=r-raybot-(\w+)/)?.[1] ||
-                            updatedDescription.match(/https:\/\/axiom\.trade\/t\/(\w+)\/@raybot/)?.[1] ||
-                            updatedDescription.match(/https:\/\/dexscreener\.com\/solana\/(\w+)/)?.[1] ||
-                            updatedDescription.includes('[🤖 RayBot]');
-                            if (tokenIdMatch) {
+                            
+                            // Extrai informações do token
+                            const tokenInfo = extractTokenInfo(updatedDescription);
+                            
+                            if (tokenInfo && tokenInfo.tokenId) {
+                                // Trigger análise de narrativa/sentimento (assíncrono)
+                                try {
+                                    // Extrai símbolo do token da mensagem (múltiplos padrões)
+                                    let tokenSymbol = 'UNKNOWN';
+                                    
+                                    const symbolRegexes = [
+                                        /MULTI BUY\s+\*\*([A-Z0-9]+)\*\*/i,      // MULTI BUY **TOKEN**
+                                        /MULTI BUY\s+([A-Z0-9]+)/i,              // MULTI BUY TOKEN
+                                        /#([A-Z0-9]+)\s+\|/i,                     // #TOKEN |
+                                        /wallets\s+bought\s+([A-Z0-9]+)/i,       // wallets bought TOKEN
+                                        /\$([A-Z]{2,10})\b/,                      // $TOKEN (padrão original)
+                                        /\*\*([A-Z]{2,10})\*\*/,                  // **TOKEN**
+                                        /Token:\s+([A-Z0-9]+)/i,                  // Token: TOKEN
+                                        /Symbol:\s+([A-Z0-9]+)/i                  // Symbol: TOKEN
+                                    ];
+                                    
+                                    for (const regex of symbolRegexes) {
+                                        const match = updatedDescription.match(regex);
+                                        if (match && match[1]) {
+                                            tokenSymbol = match[1].toUpperCase();
+                                            break;
+                                        }
+                                    }
+                                    
+                                    console.log(`[MessageService] Triggering narrative analysis for ${tokenSymbol}`);
+                                    
+                                    // Não aguarda completar para não bloquear o fluxo principal
+                                    processTokenCall({
+                                        tokenSymbol,
+                                        tokenAddress: tokenInfo.tokenId,
+                                        messageId: message.id,
+                                        channelId: channelId,
+                                        timestamp: new Date(message.timestamp)
+                                    }).catch(error => {
+                                        console.error(`[MessageService] Error triggering narrative for ${tokenSymbol}:`, error.message);
+                                    });
+                                } catch (error) {
+                                    console.error('[MessageService] Error in narrative trigger:', error.message);
+                                }
+                                
                                 // Autenticar e buscar relatório do Rugcheck
-                                const report = await getTokenReportSummary(tokenIdMatch);
+                                const report = await getTokenReportSummary(tokenInfo.tokenId);
                                 console.log('Relatório do Rugcheck:', report);
     
                                 if (!report) {
-                                    sendToTelegramClient(`${username}: ${updatedDescription} \n\n ────────────────── \n\n ⚠️ New token, no data, warning!`);
+                                    const warningMsg = formatTelegramMessage({
+                                        username,
+                                        content: updatedDescription,
+                                        tokenInfo,
+                                        riskReport: { 
+                                            warning: true, 
+                                            message: "⚠️ New token, no data available!" 
+                                        }
+                                    });
+                                    sendToTelegramClient(warningMsg);
                                     return;
                                 }
-                                // Extrair detalhes do token com segurança
-                                const token_program = report.tokenProgram || "Unknown";
-                                const token_type = (report.tokenType || "").trim();
-                                const risks = report.risks || [];
-                                const score = report.score || 0;
-                                const score_normalised = report.score_normalised || 0;
-    
-                                responseMessage += "\n\n ────────────────── \n\n✅ Token Risk Report Summary:\n";
-                                responseMessage += `🔹 Token Program: ${token_program}\n`;
-                                responseMessage += `🔹 Token Type: ${token_type ? token_type : 'Unknown'}\n`;
-    
-                                // Printa os fatores de risco somente se existirem
-                                if (risks.length > 0) {
-                                    responseMessage += "\n⚠️ Risk Factors:\n";
-                                    risks.forEach(risk => {
-                                        responseMessage += ` - ${risk.name}: ${risk.description}${risk.value ? "("+risk.value+")" : ""}\n (Score: ${risk.score}, Level: ${risk.level})\n\n`;
-                                    });
+                                
+                                // Formata mensagem com relatório de risco
+                                const completeMsg = formatTelegramMessage({
+                                    username,
+                                    content: updatedDescription,
+                                    tokenInfo,
+                                    riskReport: report
+                                });
+                                
+                                sendToTelegramClient(completeMsg);
+                                
+                                // Prepara responseMessage para salvar no banco
+                                responseMessage = `\n\n──────────────────\n✅ Token Risk Report:\n`;
+                                responseMessage += `🔹 Program: ${report.tokenProgram || "Unknown"}\n`;
+                                responseMessage += `🔹 Type: ${report.tokenType || "Unknown"}\n`;
+                                responseMessage += `🔹 Risk Score: ${report.score_normalised || 0}/100\n`;
+                                
+                                if (report.risks && report.risks.length > 0) {
+                                    responseMessage += `⚠️ Risks Found: ${report.risks.length}\n`;
                                 } else {
-                                    responseMessage += "\n✅ No significant risks detected for this token.\n";
+                                    responseMessage += `✅ No significant risks\n`;
                                 }
-                                responseMessage += `\n🔹 Final Risk Score: ${score}`;
-                                responseMessage += `\n🟩 Score Normalised: ${score_normalised} \n`;
-                                sendToTelegramClient(`${username}: ${updatedDescription}  ${responseMessage}`);
                             }
                             else {
-                                sendToTelegramClient(`${username}: ${updatedDescription}`);
+                                // Mensagem sem token
+                                const simpleMsg = formatTelegramMessage({
+                                    username,
+                                    content: updatedDescription
+                                });
+                                sendToTelegramClient(simpleMsg);
                             }
                         }
                     });
                     let description = message.embeds?.map(embed => embed.description).join(' ') || message.content || 'Vazio';
                     const newMessage = new Message({
                         id: message.id,
+                        channelId: channelId,
                         username: message.author.username || message.embeds?.map(embed => embed.author?.name || 'Unknown').join(' ') || message.content || '',
                         description: description + responseMessage,
                     });
@@ -158,7 +210,8 @@ const retrieveMessages = async (channelId, hours) => {
 const channelIds = [
     process.env.CHANNEL_ID_1,
     process.env.CHANNEL_ID_2,
-    process.env.CHANNEL_ID_3
+    process.env.CHANNEL_ID_3,
+    process.env.CHANNEL_ID_4
 ].filter(Boolean); // Filtra IDs de canal inválidos
 for (const channelId of channelIds) {
     if (!channelId) {

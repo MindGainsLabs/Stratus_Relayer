@@ -1,0 +1,426 @@
+asyncapi: 3.0.0
+info:
+  title: Stratus Relayer WebSocket API
+  version: 1.0.0
+  description: |
+    WebSocket API for real-time crypto tracking data from Discord messages.
+    
+    ## Authentication
+    Send an `authenticate` event with your Bearer token to start receiving data.
+    
+    ## Events
+    Subscribe to different data streams using the events below.
+  contact:
+    name: Stratus Relayer Support
+    url: https://github.com/your-org/stratus-relayer
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  production:
+    host: srv800316.hstgr.cloud:8081
+    protocol: ws
+    description: Production WebSocket server
+  local:
+    host: localhost:8081
+    protocol: ws
+    description: Local development server
+
+channels:
+  root:
+    address: /
+    messages:
+      authenticate:
+        $ref: '#/components/messages/authenticate'
+      authenticated:
+        $ref: '#/components/messages/authenticated'
+      authenticationFailed:
+        $ref: '#/components/messages/authenticationFailed'
+      subscribeCryptoTracking:
+        $ref: '#/components/messages/subscribeCryptoTracking'
+      subscriptionConfirmed:
+        $ref: '#/components/messages/subscriptionConfirmed'
+      cryptoTrackingUpdate:
+        $ref: '#/components/messages/cryptoTrackingUpdate'
+      error:
+        $ref: '#/components/messages/error'
+      disconnect:
+        $ref: '#/components/messages/disconnect'
+
+operations:
+  sendAuthenticate:
+    action: send
+    channel:
+      $ref: '#/channels/root'
+    messages:
+      - $ref: '#/channels/root/messages/authenticate'
+    summary: Authenticate with the WebSocket server
+    description: Send your Bearer token to authenticate and start receiving data
+
+  receiveAuthenticated:
+    action: receive
+    channel:
+      $ref: '#/channels/root'
+    messages:
+      - $ref: '#/channels/root/messages/authenticated'
+    summary: Receive authentication confirmation
+    description: Confirmation that authentication was successful
+
+  receiveAuthenticationFailed:
+    action: receive
+    channel:
+      $ref: '#/channels/root'
+    messages:
+      - $ref: '#/channels/root/messages/authenticationFailed'
+    summary: Receive authentication failure
+    description: Notification that authentication failed
+
+  sendSubscribeCryptoTracking:
+    action: send
+    channel:
+      $ref: '#/channels/root'
+    messages:
+      - $ref: '#/channels/root/messages/subscribeCryptoTracking'
+    summary: Subscribe to crypto tracking updates
+    description: Subscribe to real-time crypto tracking data
+
+  receiveSubscriptionConfirmed:
+    action: receive
+    channel:
+      $ref: '#/channels/root'
+    messages:
+      - $ref: '#/channels/root/messages/subscriptionConfirmed'
+    summary: Receive subscription confirmation
+    description: Confirmation that subscription was successful
+
+  receiveCryptoTrackingUpdate:
+    action: receive
+    channel:
+      $ref: '#/channels/root'
+    messages:
+      - $ref: '#/channels/root/messages/cryptoTrackingUpdate'
+    summary: Receive crypto tracking updates
+    description: Real-time updates with crypto tracking data
+
+  receiveError:
+    action: receive
+    channel:
+      $ref: '#/channels/root'
+    messages:
+      - $ref: '#/channels/root/messages/error'
+    summary: Receive error messages
+    description: Error notifications from the server
+
+components:
+  messages:
+    authenticate:
+      name: authenticate
+      title: Authentication Request
+      summary: Send authentication token
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/AuthenticatePayload'
+      examples:
+        - name: Basic Authentication
+          summary: Authenticate with Bearer token
+          payload:
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    authenticated:
+      name: authenticated
+      title: Authentication Success
+      summary: Authentication successful
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/AuthenticatedPayload'
+      examples:
+        - name: Success Response
+          summary: Authentication confirmed
+          payload:
+            message: "Successfully authenticated"
+            user:
+              id: "user123"
+              username: "trader01"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    authenticationFailed:
+      name: authentication-failed
+      title: Authentication Failed
+      summary: Authentication failed
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/AuthenticationFailedPayload'
+      examples:
+        - name: Invalid Token
+          summary: Token is invalid or expired
+          payload:
+            message: "Invalid token"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    subscribeCryptoTracking:
+      name: subscribe-crypto-tracking
+      title: Subscribe to Crypto Tracking
+      summary: Subscribe to crypto tracking updates
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SubscribeCryptoTrackingPayload'
+      examples:
+        - name: Basic Subscription
+          summary: Subscribe to all updates
+          payload:
+            hours: 24
+        - name: Filtered Subscription
+          summary: Subscribe to specific token updates
+          payload:
+            hours: 12
+            tokenSymbol: "SOL"
+            walletName: "whale_wallet"
+
+    subscriptionConfirmed:
+      name: subscription-confirmed
+      title: Subscription Confirmed
+      summary: Subscription was successful
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/SubscriptionConfirmedPayload'
+      examples:
+        - name: Confirmation
+          summary: Subscription active
+          payload:
+            message: "Subscribed to crypto tracking updates"
+            subscription:
+              hours: 24
+              tokenSymbol: null
+              walletName: null
+            timestamp: "2024-01-15T10:30:00Z"
+
+    cryptoTrackingUpdate:
+      name: crypto-tracking-update
+      title: Crypto Tracking Data Update
+      summary: Real-time crypto tracking data
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/CryptoTrackingUpdatePayload'
+      examples:
+        - name: Token Update
+          summary: Real-time token data
+          payload:
+            type: "crypto-tracking-update"
+            data:
+              tokenSymbol: "SOL"
+              walletName: "whale_wallet"
+              totalSol: 1250.75
+              riskScore: 0.85
+              mentions: 15
+              lastActivity: "2024-01-15T10:25:00Z"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    error:
+      name: error
+      title: Error Message
+      summary: Error from server
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ErrorPayload'
+      examples:
+        - name: Subscription Error
+          summary: Error during subscription
+          payload:
+            message: "Subscription failed"
+            error: "Invalid parameters"
+            timestamp: "2024-01-15T10:30:00Z"
+
+    disconnect:
+      name: disconnect
+      title: Client Disconnect
+      summary: Client disconnected from server
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DisconnectPayload'
+
+  schemas:
+    AuthenticatePayload:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Bearer token for authentication
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      required:
+        - token
+
+    AuthenticatedPayload:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Successfully authenticated"
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "user123"
+            username:
+              type: string
+              example: "trader01"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+      required:
+        - message
+        - user
+        - timestamp
+
+    AuthenticationFailedPayload:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Invalid token"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+      required:
+        - message
+        - timestamp
+
+    SubscribeCryptoTrackingPayload:
+      type: object
+      properties:
+        hours:
+          type: number
+          description: Number of hours to look back for data
+          example: 24
+          default: 24
+        tokenSymbol:
+          type: string
+          description: Filter by specific token symbol (optional)
+          example: "SOL"
+        walletName:
+          type: string
+          description: Filter by wallet name (optional)
+          example: "whale_wallet"
+        channelId:
+          type: string
+          description: Discord channel ID to filter (optional)
+          example: "123456789012345678"
+
+    SubscriptionConfirmedPayload:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Subscribed to crypto tracking updates"
+        subscription:
+          type: object
+          properties:
+            hours:
+              type: number
+              example: 24
+            tokenSymbol:
+              type: string
+              nullable: true
+              example: null
+            walletName:
+              type: string
+              nullable: true
+              example: null
+            channelId:
+              type: string
+              nullable: true
+              example: null
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+      required:
+        - message
+        - subscription
+        - timestamp
+
+    CryptoTrackingUpdatePayload:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "crypto-tracking-update"
+        data:
+          type: object
+          properties:
+            tokenSymbol:
+              type: string
+              example: "SOL"
+            walletName:
+              type: string
+              example: "whale_wallet"
+            totalSol:
+              type: number
+              example: 1250.75
+            riskScore:
+              type: number
+              example: 0.85
+            mentions:
+              type: number
+              example: 15
+            uniqueWallets:
+              type: number
+              example: 8
+            lastActivity:
+              type: string
+              format: date-time
+              example: "2024-01-15T10:25:00Z"
+            transactions:
+              type: array
+              items:
+                type: object
+                properties:
+                  amount:
+                    type: number
+                    example: 125.5
+                  type:
+                    type: string
+                    example: "buy"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-01-15T10:20:00Z"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+      required:
+        - type
+        - data
+        - timestamp
+
+    ErrorPayload:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Subscription failed"
+        error:
+          type: string
+          example: "Invalid parameters"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+      required:
+        - message
+        - timestamp
+
+    DisconnectPayload:
+      type: object
+      properties:
+        reason:
+          type: string
+          example: "client-disconnect"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"

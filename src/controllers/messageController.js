@@ -4,11 +4,12 @@ import { configDotenv } from 'dotenv';
 configDotenv();
 
 export const getMessages = async (req, res) => {
-    const { hours, channelId1, channelId2, channelId3 } = req.body;
+    const { hours, channelId1, channelId2, channelId3, channelId4 } = req.body;
     const channelIds = [
         process.env.CHANNEL_ID_1 || channelId1,
         process.env.CHANNEL_ID_2 || channelId2,
-        process.env.CHANNEL_ID_3 || channelId3
+        process.env.CHANNEL_ID_3 || channelId3,
+        process.env.CHANNEL_ID_4 || channelId4
     ].filter(Boolean); // Filtra IDs de canal inválidos
 
     try {
