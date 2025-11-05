@@ -20,6 +20,7 @@ import requestIp from 'request-ip';
 import axios from 'axios';
 import { configureWebSocketRoutes } from './routes/websocketRoutes.js';
 import { initializeCryptoWebSocket, startAutoBroadcast } from './services/cryptoWebSocketService.js';
+import { getMomentumCalls } from './services/momentumCallsService.js';
 import { persistWalletRanking } from './services/channelStatsService.js';
 import { extractCallsFromMessages } from './services/callExtractionService.js';
 import { connectRabbitMQ } from './services/queueService.js';
@@ -240,6 +241,40 @@ export const initializeWebSocket = (io) => {
     // Start auto-broadcast every 30 seconds for connected clients
     startAutoBroadcast(30000, { hours: 24 });
 
+    // Start momentum-calls broadcast every 5 minutes for subscribed clients
+    const MOMENTUM_INTERVAL_MS = parseInt(process.env.MOMENTUM_BROADCAST_INTERVAL_MS || '300000', 10); // default 5 min
+    setInterval(async () => {
+        try {
+            const room = io.sockets.adapter.rooms.get('momentum-calls');
+            if (!room || room.size === 0) {
+                return; // Nenhum cliente subscrito
+            }
+
+            console.log(`[MomentumCalls] Broadcasting to ${room.size} subscribed clients...`);
+            
+            // Coleta opções de filtro de cada socket (se definidas)
+            // Para simplificar, broadcasta com opções padrão; se cada socket tiver filtro diferente, 
+            // poderia iterar por socket e enviar individualmente
+            const momentumTokens = await getMomentumCalls({ hours: 24, minGainPercent: 0 });
+            
+            io.to('momentum-calls').emit('momentum-calls-data', {
+                message: 'Momentum calls update',
+                data: momentumTokens,
+                timestamp: new Date()
+            });
+
+            console.log(`[MomentumCalls] Broadcasted ${momentumTokens.length} tokens with positive momentum`);
+        } catch (error) {
+            console.error('[MomentumCalls] Error broadcasting:', error);
+            io.to('momentum-calls').emit('momentum-calls-error', {
+                message: 'Error updating momentum calls',
+                error: error.message,
+                timestamp: new Date()
+            });
+        }
+    }, MOMENTUM_INTERVAL_MS);
+
+    console.log(`Stratus Relayer - Momentum calls broadcast started (interval: ${MOMENTUM_INTERVAL_MS}ms)`);
     console.log('Stratus Relayer - WebSocket crypto tracking service initialized');
 };
 

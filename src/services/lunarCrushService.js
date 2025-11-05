@@ -52,38 +52,83 @@ const checkRateLimit = () => {
 
 /**
  * Faz requisição à API do LunarCrush
+ * - Sanitiza `limit` quando fornecido (inteiro, 1..100)
+ * - Em caso de 402 (upgrade required) retorna { data: [] } em vez de jogar erro
+ * - Se LunarCrush retornar 400 com mensagem de `Invalid input parameter: limit`, tenta novamente sem o `limit`.
  */
-const makeRequest = async (endpoint, params = {}) => {
+const makeRequest = async (endpoint, params = {}, attempt = 0) => {
   checkRateLimit();
+
+  // Defensive copy of params to avoid mutating callers' objects
+  const requestParams = { ...params };
+
+  // Sanitize `limit` param if present
+  if (requestParams.limit !== undefined && requestParams.limit !== null) {
+    const parsed = parseInt(requestParams.limit, 10);
+    if (Number.isNaN(parsed)) {
+      // remove invalid limit
+      delete requestParams.limit;
+    } else {
+      // Clamp to a reasonable max (LunarCrush typical limits are small). Use 100 as safe cap.
+      requestParams.limit = Math.max(1, Math.min(100, parsed));
+    }
+  }
 
   try {
     const url = `${LUNARCRUSH_BASE_URL}${endpoint}`;
-    console.log(`[LunarCrush] Request: ${url}`, params);
-    
+    console.log(`[LunarCrush] Request: ${url}`, requestParams);
+
     const response = await axios.get(url, {
       headers: {
         'Authorization': `Bearer ${LUNARCRUSH_API_KEY}`,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': 'Stratus-Relayer/1.0'
       },
-      params,
-      timeout: 10000
+      params: requestParams,
+      // Increase timeout slightly to allow slower endpoints (ms)
+      timeout: 15000
     });
 
     console.log(`[LunarCrush] Response status: ${response.status}`);
-    
-    // A resposta da API v4 tem estrutura: { data: [...] } ou { data: {...} }
     return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error(`LunarCrush API Error: ${error.response.status}`, error.response.data);
-      throw new Error(`LunarCrush API Error: ${error.response.status} - ${error.response.data?.message || error.response.statusText}`);
-    } else if (error.request) {
+    const status = error.response?.status;
+    const responseData = error.response?.data;
+
+    // Handle subscription-required (402) gracefully: return empty data so callers can continue
+    if (status === 402) {
+      console.warn(`[LunarCrush] 402 Upgrade required for ${endpoint}. Returning empty data.`,
+        responseData || 'no body');
+      return { data: [] };
+    }
+
+    // If LunarCrush complains about invalid `limit`, try once more without the limit param
+    if (status === 400 && typeof responseData === 'object' && responseData.error && responseData.error.toString().includes('Invalid input parameter: limit') && attempt === 0) {
+      console.warn(`[LunarCrush] Invalid limit for ${endpoint}. Retrying without limit...`);
+      const newParams = { ...params };
+      delete newParams.limit;
+      // recursive retry with attempt counter to avoid loops
+      try {
+        return await makeRequest(endpoint, newParams, attempt + 1);
+      } catch (retryErr) {
+        console.error(`[LunarCrush] Retry without limit failed for ${endpoint}:`, retryErr.message || retryErr);
+        return { data: [] };
+      }
+    }
+
+    // For other 400 errors we log and return empty data to keep system resilient
+    if (status === 400) {
+      console.warn(`[LunarCrush] 400 Bad Request for ${endpoint}:`, responseData || error.message);
+      return { data: [] };
+    }
+
+    if (error.request) {
       console.error('LunarCrush API: No response received', error.message);
       throw new Error('LunarCrush API: No response received');
-    } else {
-      console.error('LunarCrush API Request Error:', error.message);
-      throw error;
     }
+
+    console.error('LunarCrush API Request Error:', error.message || error);
+    throw error;
   }
 };
 

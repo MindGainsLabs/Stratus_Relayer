@@ -7,6 +7,7 @@ import {
     sendWelcomeData
 } from '../services/cryptoWebSocketService.js';
 import { getChannelStats } from '../services/channelStatsService.js';
+import { getMomentumCalls } from '../services/momentumCallsService.js';
 
 /**
  * Configure WebSocket routes and event handlers
@@ -309,6 +310,70 @@ export const configureWebSocketRoutes = (io) => {
                 socket.emit('channel-stats', { channelId, stats, timestamp: new Date() });
             } catch (e) {
                 socket.emit('channel-stats-error', { message: e.message, channelId, timestamp: new Date() });
+            }
+        }));
+
+        // Subscribe to momentum-calls (tokens com preço atual > última call)
+        socket.on('subscribe-momentum-calls', requireAuth(async (options = {}) => {
+            console.log(`Client ${socket.id} subscribed to momentum-calls:`, options);
+            socket.join('momentum-calls');
+            
+            // Armazena opções de filtro (minGainPercent, etc.) no socket para uso posterior
+            socket.momentumOptions = options;
+            
+            // Enviar snapshot inicial
+            try {
+                const momentumTokens = await getMomentumCalls(options);
+                socket.emit('momentum-calls-data', {
+                    message: 'Momentum calls snapshot',
+                    data: momentumTokens,
+                    filters: options,
+                    timestamp: new Date()
+                });
+            } catch (error) {
+                socket.emit('momentum-calls-error', {
+                    message: 'Error fetching momentum calls',
+                    error: error.message,
+                    timestamp: new Date()
+                });
+            }
+            
+            socket.emit('momentum-calls-subscription-confirmed', {
+                message: 'Successfully subscribed to momentum calls updates',
+                filters: options,
+                timestamp: new Date()
+            });
+        }));
+
+        // Unsubscribe from momentum-calls
+        socket.on('unsubscribe-momentum-calls', () => {
+            console.log(`Client ${socket.id} unsubscribed from momentum-calls`);
+            socket.leave('momentum-calls');
+            delete socket.momentumOptions;
+            
+            socket.emit('momentum-calls-unsubscribed', {
+                message: 'Successfully unsubscribed from momentum calls',
+                timestamp: new Date()
+            });
+        });
+
+        // Request on-demand momentum calls (sem subscrição)
+        socket.on('request-momentum-calls', requireAuth(async (options = {}) => {
+            console.log(`Client ${socket.id} requested momentum-calls:`, options);
+            try {
+                const momentumTokens = await getMomentumCalls(options);
+                socket.emit('momentum-calls-data', {
+                    message: 'Momentum calls retrieved',
+                    data: momentumTokens,
+                    filters: options,
+                    timestamp: new Date()
+                });
+            } catch (error) {
+                socket.emit('momentum-calls-error', {
+                    message: 'Error fetching momentum calls',
+                    error: error.message,
+                    timestamp: new Date()
+                });
             }
         }));
     });
